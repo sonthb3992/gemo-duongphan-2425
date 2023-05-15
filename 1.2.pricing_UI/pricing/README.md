@@ -1,4 +1,4 @@
-## Code Documentation
+## Documentation
 
 The Application for a menu system that allows users to select and customize drinks and food items. It includes features such as selecting drink type, size, milk options, adding additional ingredients, and calculating the total price of the order.
 
@@ -101,7 +101,7 @@ Includes basic error handling to validate user inputs and display appropriate er
 
 Includes a basic user interface created using Bootstrap CSS classes and form elements. The `Menu` component renders the drink and food selection forms side by side. The selected items are
 
-## Multiple Language Support Documentation
+### Multiple Language Support
 
 ### Language Files
 
