@@ -104,7 +104,7 @@ class Food extends React.Component {
         <div className="row justify-content-center">
           <div className="col-md-6">
             <h2>Food</h2>
-            <label className="form-label">Drink:</label>
+            <label className="form-label">Food:</label>
             <select
               className="form-control"
               name="food"
