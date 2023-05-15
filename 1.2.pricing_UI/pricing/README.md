@@ -95,8 +95,87 @@ The `Menu` component manages the order items and provides functionality to add n
 
 ### Error Handling
 
-The code includes basic error handling to validate user inputs and display appropriate error messages when invalid options or configurations are selected. Error messages are displayed using `alert()` function calls.
+Includes basic error handling to validate user inputs and display appropriate error messages when invalid options or configurations are selected. Error messages are displayed using `alert()` function calls.
 
 ### User Interface
 
-The code includes a basic user interface created using Bootstrap CSS classes and form elements. The `Menu` component renders the drink and food selection forms side by side. The selected items are
+Includes a basic user interface created using Bootstrap CSS classes and form elements. The `Menu` component renders the drink and food selection forms side by side. The selected items are
+
+## Multiple Language Support Documentation
+
+### Language Files
+
+The `Menu` component uses separate language files to store translations for different languages. These language files contain key-value pairs where the keys represent unique identifiers and the values represent the translated text.
+
+For example:
+
+- `en.json` (English translation file):
+
+```json
+{
+  "menu.title": "Menu",
+  "menu.addOrder": "Add to Order",
+  "order.title": "Order",
+  "order.clear": "Clear Order",
+  "order.price": "Order Price",
+  "order.tax": "Tax",
+  "order.priceAfterTax": "Order Price After Tax",
+  "order.empty": "No items in order."
+}
+```
+
+- `vn.json` (Vietnamese translation file):
+
+```json
+{
+  "menu.title": "Thực Đơn",
+  "menu.addOrder": "Thêm vào đơn hàng",
+  "order.title": "Đơn hàng",
+  "order.clear": "Xóa Đơn hàng",
+  "order.price": "Giá đơn hàng",
+  "order.tax": "Thuế",
+  "order.priceAfterTax": "Giá đơn hàng sau thuế",
+  "order.empty": "Không có sản phẩm trong đơn hàng."
+}
+```
+
+### Locale Management
+
+The `Menu` component includes a `locale` state variable that represents the currently selected language. By default, it is initialized to a specific language, such as `"en"` for English.
+
+### Language Selection
+
+A language selection feature is implemented in the `Menu` component. It allows users to switch between different languages. This feature typically involves a dropdown menu or a set of buttons that enable language selection.
+
+When the user selects a different language, the `locale` state variable is updated accordingly. The component then re-renders, and the content is displayed in the selected language.
+
+### IntlProvider
+
+The `IntlProvider` component from the React Intl library is used to wrap the content of the `Menu` component. It provides the necessary context for language translation.
+
+The `IntlProvider` component requires two props:
+
+- `locale`: Represents the currently selected language.
+- `messages`: An object that contains the translations for the selected language.
+
+The `messages` prop is obtained by importing the appropriate language file based on the `locale` value. This ensures that the correct translations are used when rendering the component.
+
+### Translating Text
+
+To display translated text, the `FormattedMessage` component from the React Intl library is used. It is a higher-level component that takes care of the translation based on the provided `id` and `defaultMessage` props.
+
+The `id` prop corresponds to the translation key in the language file. The `defaultMessage` prop serves as a fallback if the translation for the specified key is not available.
+
+For example:
+
+```jsx
+<FormattedMessage id="menu.title" defaultMessage="Menu" />
+```
+
+In this case, the translation key `"menu.title"` is used, and if a translation for that key is not available, the fallback message `"Menu"` will be displayed.
+
+### Updating Translations
+
+When the user selects a different language, the `locale` state variable is updated, triggering a re-render of the `Menu` component. The `IntlProvider` component then provides the updated translations based on the new `locale` value.
+
+The `FormattedMessage` components in the component's JSX will automatically update their rendered text based on the selected language.

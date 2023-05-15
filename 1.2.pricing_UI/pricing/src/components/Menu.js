@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import Drink from "./Drink";
 import Food from "./Food";
 import { v4 as uuidv4 } from "uuid";
+import { FormattedMessage, IntlProvider } from "react-intl";
 
 const initialDrink = {
   drink: "coffee",
@@ -33,6 +34,7 @@ class Menu extends Component {
         tax: 0,
         totalOrderPriceAfterTax: 0,
       },
+      locale: "en",
     };
   }
 
@@ -42,7 +44,6 @@ class Menu extends Component {
     const { order } = this.state;
     const uniqueId = uuidv4();
     const newDrink = { ...drink, id: uniqueId };
-    console.log("newDrink", newDrink);
     const newOrder = [...order, newDrink];
     this.setState({ order: newOrder }, () => {
       this.updateOrderTotalPrice();
@@ -146,102 +147,169 @@ class Menu extends Component {
     });
   };
 
+  getLocaleMessages(locale) {
+    switch (locale) {
+      case "vn":
+        return require("./lang/vn.json");
+      default:
+        return require("./lang/en.json");
+    }
+  }
+
+  handleLanguageChange = (event) => {
+    this.setState({ locale: event.target.value });
+  };
+
   render() {
-    const { drink, food, order, orderPrice } = this.state;
-    console.log(order);
+    const { locale, drink, food, order, orderPrice } = this.state;
+    console.log(locale);
     return (
-      <div>
-        <h2>Menu</h2>
-        <div className="row">
-          <div className="col-md-6">
-            <form onSubmit={(event) => this.handleAddDrink(event, drink)}>
-              <Drink
-                {...drink}
-                onChange={(drink, price) =>
-                  this.handleDrinkUpdate(drink, price)
-                }
-              />
-              <div className="text-center">
-                <button type="submit" className="btn btn-primary mt-2">
-                  Add to Order
-                </button>
+      <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
+        <div>
+          <div>
+            <h2>
+              <FormattedMessage id="menu.title" defaultMessage="Thực Đơn" />
+            </h2>
+            <div className="row">
+              <div className="col-md-6">
+                <form onSubmit={(event) => this.handleAddDrink(event, drink)}>
+                  <Drink
+                    {...drink}
+                    onChange={(drink, price) =>
+                      this.handleDrinkUpdate(drink, price)
+                    }
+                  />
+                  <div className="text-center">
+                    <button type="submit" className="btn btn-primary mt-2">
+                      <FormattedMessage
+                        id="menu.addOrder"
+                        defaultMessage="Thêm vào đơn hàng"
+                      />
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-          <div className="col-md-6" style={{ borderLeft: "1px solid black" }}>
-            <form onSubmit={(event) => this.handleAddFood(event, food)}>
-              <Food
-                {...food}
-                onChange={(food, price) => this.handleFoodUpdate(food, price)}
-              />
-              <div className="text-center">
-                <button type="submit" className="btn btn-primary mt-2">
-                  Add to Order
-                </button>
+              <div
+                className="col-md-6"
+                style={{ borderLeft: "1px solid black" }}
+              >
+                <form onSubmit={(event) => this.handleAddFood(event, food)}>
+                  <Food
+                    {...food}
+                    onChange={(food, price) =>
+                      this.handleFoodUpdate(food, price)
+                    }
+                  />
+                  <div className="text-center">
+                    <button type="submit" className="btn btn-primary mt-2">
+                      <FormattedMessage
+                        id="menu.addOrder"
+                        defaultMessage="Thêm vào đơn hàng"
+                      />
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </div>
-        <div className="container">
-          <div class="row">
-            <div class="col-md-10 mx-auto">
-              <h2>Order</h2>
-              {order.length > 0 ? (
-                <div>
-                  {order.map((item) => (
-                    <div key={item.id}>
-                      {item.drink !== undefined ? (
-                        <Drink
-                          {...item}
-                          onChange={(drink, price) =>
-                            this.handleDrinkUpdate(drink, price)
-                          }
-                        />
-                      ) : (
-                        <Food
-                          {...item}
-                          onChange={(food, price) =>
-                            this.handleFoodUpdate(food, price)
-                          }
-                        />
-                      )}
-                      <div class="row">
+            </div>
+            <div className="container">
+              <div className="row">
+                <div className="col-md-10 mx-auto">
+                  <h2>
+                    <FormattedMessage
+                      id="order.title"
+                      defaultMessage="Đơn hàng"
+                    />
+                  </h2>
+                  {order.length > 0 ? (
+                    <div>
+                      {order.map((item) => (
+                        <div key={item.id}>
+                          {item.drink !== undefined ? (
+                            <Drink
+                              {...item}
+                              onChange={(drink, price) =>
+                                this.handleDrinkUpdate(drink, price)
+                              }
+                            />
+                          ) : (
+                            <Food
+                              {...item}
+                              onChange={(food, price) =>
+                                this.handleFoodUpdate(food, price)
+                              }
+                            />
+                          )}
+                          <div className="row">
+                            <button
+                              className="btn btn-danger mx-auto"
+                              onClick={() =>
+                                this.handleRemoveOrderItem(item.id)
+                              }
+                            >
+                              <FormattedMessage
+                                id="order.remove"
+                                defaultMessage="Remove"
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      <br />
+                      <div className="text-center">
                         <button
-                          className="btn btn-danger mx-auto"
-                          onClick={() => this.handleRemoveOrderItem(item.id)}
+                          onClick={this.handleClearOrder}
+                          className="btn btn-secondary mr-2"
                         >
-                          Remove
+                          <FormattedMessage
+                            id="order.clear"
+                            defaultMessage="Clear Order"
+                          />
                         </button>
+                        <div className="text-center">
+                          <h3>
+                            <FormattedMessage
+                              id="order.price"
+                              defaultMessage="Order Price"
+                            />
+                            : ${orderPrice.totalOrderPrice.toFixed(2)}
+                          </h3>
+                          <h3>
+                            <FormattedMessage
+                              id="order.tax"
+                              defaultMessage="Tax"
+                            />
+                            : ${orderPrice.tax.toFixed(2)}
+                          </h3>
+                          <h3>
+                            <FormattedMessage
+                              id="order.priceAfterTax"
+                              defaultMessage="Order Price After Tax"
+                            />
+                            : ${orderPrice.totalOrderPriceAfterTax.toFixed(2)}
+                          </h3>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                  <br />
-                  <div className="text-center">
-                    <button
-                      onClick={this.handleClearOrder}
-                      className="btn btn-secondary mr-2"
-                    >
-                      Clear Order
-                    </button>
-                    <div className="text-center">
-                      <h3>
-                        Order Price: ${orderPrice.totalOrderPrice.toFixed(2)}
-                      </h3>
-                      <h3>Tax: ${orderPrice.tax.toFixed(2)}</h3>
-                      <h3>
-                        Order Price After Tax: $
-                        {orderPrice.totalOrderPriceAfterTax.toFixed(2)}
-                      </h3>
-                    </div>
-                  </div>
+                  ) : (
+                    <p>
+                      <FormattedMessage
+                        id="order.empty"
+                        defaultMessage="No items in order."
+                      />
+                    </p>
+                  )}
                 </div>
-              ) : (
-                <p>No items in order.</p>
-              )}
+              </div>
             </div>
           </div>
+          <div>
+            <select value={locale} onChange={this.handleLanguageChange}>
+              <option value="en">English</option>
+              <option value="vn">Tiếng Việt</option>
+            </select>
+          </div>
         </div>
-      </div>
+      </IntlProvider>
     );
   }
 }

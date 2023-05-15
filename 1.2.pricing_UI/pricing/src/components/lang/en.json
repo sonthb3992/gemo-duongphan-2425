@@ -1,0 +1,10 @@
+{
+    "menu.title": "Menu",
+    "menu.addOrder": "Add to Order",
+    "order.title": "Order",
+    "order.clear": "Clear Order",
+    "order.price": "Order Price",
+    "order.tax": "Tax",
+    "order.priceAfterTax": "Order Price After Tax",
+    "order.empty": "No items in order."
+}
