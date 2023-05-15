@@ -79,10 +79,6 @@ The `Menu` component is a React class component that serves as the main containe
 - `handleRemoveFromOrder(index)`: Removes the item at the specified index from the order.
 - `calculateOrderPrice()`: Calculates the total order
 
-## Code Documentation
-
-The provided code is a React component-based application for a menu system that allows users to select and customize drinks and food items. It includes features such as selecting drink type, size, milk options, adding additional ingredients, and calculating the total price of the order.
-
 ### Functionality
 
 #### Drink Selection and Customization
