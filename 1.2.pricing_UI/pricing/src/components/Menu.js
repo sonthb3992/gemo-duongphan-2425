@@ -5,6 +5,7 @@ import Drink from "./Drink";
 import Food from "./Food";
 import { v4 as uuidv4 } from "uuid";
 import { FormattedMessage, IntlProvider } from "react-intl";
+import { Form } from "react-bootstrap";
 
 const initialDrink = {
   drink: "coffee",
@@ -162,9 +163,14 @@ class Menu extends Component {
 
   render() {
     const { locale, drink, food, order, orderPrice } = this.state;
-    console.log(locale);
     return (
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
+        <div className="d-flex justify-content-end">
+          <Form.Select value={locale} onChange={this.handleLanguageChange}>
+            <option value="en">English</option>
+            <option value="vn">Tiếng Việt</option>
+          </Form.Select>
+        </div>
         <div>
           <div>
             <h2>
@@ -301,12 +307,6 @@ class Menu extends Component {
                 </div>
               </div>
             </div>
-          </div>
-          <div>
-            <select value={locale} onChange={this.handleLanguageChange}>
-              <option value="en">English</option>
-              <option value="vn">Tiếng Việt</option>
-            </select>
           </div>
         </div>
       </IntlProvider>
