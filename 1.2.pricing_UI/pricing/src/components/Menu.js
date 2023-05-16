@@ -143,7 +143,7 @@ class Menu extends Component {
   };
 
   handleClearOrder = () => {
-    this.setState({ order: [], orderPrice: 0 }, () => {
+    this.setState({ order: [] }, () => {
       this.updateOrderTotalPrice();
     });
   };
@@ -163,6 +163,7 @@ class Menu extends Component {
 
   render() {
     const { locale, drink, food, order, orderPrice } = this.state;
+    console.log(order);
     return (
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
         <div className="d-flex justify-content-end">
@@ -173,9 +174,6 @@ class Menu extends Component {
         </div>
         <div>
           <div>
-            <h2>
-              <FormattedMessage id="menu.title" defaultMessage="Thực Đơn" />
-            </h2>
             <div className="row">
               <div className="col-md-6">
                 <form onSubmit={(event) => this.handleAddDrink(event, drink)}>
@@ -217,37 +215,63 @@ class Menu extends Component {
                 </form>
               </div>
             </div>
-            <div className="container">
-              <div className="row">
-                <div className="col-md-10 mx-auto">
-                  <h2>
-                    <FormattedMessage
-                      id="order.title"
-                      defaultMessage="Đơn hàng"
-                    />
-                  </h2>
+            <hr />
+            <div class="container border rounded">
+              <h2>
+                <FormattedMessage id="order.title" defaultMessage="Đơn hàng" />
+              </h2>
+
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
                   {order.length > 0 ? (
-                    <div>
+                    <>
                       {order.map((item) => (
-                        <div key={item.id}>
-                          {item.drink !== undefined ? (
-                            <Drink
-                              {...item}
-                              onChange={(drink, price) =>
-                                this.handleDrinkUpdate(drink, price)
-                              }
-                            />
-                          ) : (
-                            <Food
-                              {...item}
-                              onChange={(food, price) =>
-                                this.handleFoodUpdate(food, price)
-                              }
-                            />
-                          )}
-                          <div className="row">
+                        <tr key={item.id}>
+                          <td>
+                            {item.drink !== undefined ? (
+                              <p>
+                                {item.type} {item.drink}: size {item.size}
+                                {item.hasWhippingCream
+                                  ? ", has whipping cream"
+                                  : ""}
+                                {item.milkOption != "none"
+                                  ? ", " + item.milkOption
+                                  : ""}
+                                {item.chocolateSaucePumps > 0
+                                  ? ", " +
+                                    item.chocolateSaucePumps +
+                                    " chocolate sauce"
+                                  : ""}
+                              </p>
+                            ) : (
+                              <p>
+                                {item.food}
+                                {item.additionalFoods.length > 0 && ": "}
+                                {item.additionalFoods.map((food, index) => (
+                                  <span key={index}>
+                                    {`${food}${
+                                      index !== item.additionalFoods.length - 1
+                                        ? ", "
+                                        : ""
+                                    }`}
+                                  </span>
+                                ))}
+                              </p>
+                            )}
+                          </td>
+                          <td>{1}</td>
+                          <td>${item.price.toFixed(2)}</td>
+                          <td>
                             <button
-                              className="btn btn-danger mx-auto"
+                              className="btn btn-danger"
                               onClick={() =>
                                 this.handleRemoveOrderItem(item.id)
                               }
@@ -257,55 +281,53 @@ class Menu extends Component {
                                 defaultMessage="Remove"
                               />
                             </button>
-                          </div>
-                        </div>
+                          </td>
+                        </tr>
                       ))}
-                      <br />
-                      <div className="text-center">
-                        <button
-                          onClick={this.handleClearOrder}
-                          className="btn btn-secondary mr-2"
-                        >
-                          <FormattedMessage
-                            id="order.clear"
-                            defaultMessage="Clear Order"
-                          />
-                        </button>
-                        <div className="text-center">
-                          <h3>
+                      <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                          <button
+                            onClick={this.handleClearOrder}
+                            className="btn btn-secondary"
+                          >
                             <FormattedMessage
-                              id="order.price"
-                              defaultMessage="Order Price"
+                              id="order.clear"
+                              defaultMessage="Clear Order"
                             />
-                            : ${orderPrice.totalOrderPrice.toFixed(2)}
-                          </h3>
-                          <h3>
-                            <FormattedMessage
-                              id="order.tax"
-                              defaultMessage="Tax"
-                            />
-                            : ${orderPrice.tax.toFixed(2)}
-                          </h3>
-                          <h3>
-                            <FormattedMessage
-                              id="order.priceAfterTax"
-                              defaultMessage="Order Price After Tax"
-                            />
-                            : ${orderPrice.totalOrderPriceAfterTax.toFixed(2)}
-                          </h3>
-                        </div>
-                      </div>
-                    </div>
+                          </button>
+                        </td>
+                      </tr>
+                    </>
                   ) : (
-                    <p>
-                      <FormattedMessage
-                        id="order.empty"
-                        defaultMessage="No items in order."
-                      />
-                    </p>
+                    <tr>
+                      <td colspan="4">No orders yet</td>
+                    </tr>
                   )}
-                </div>
-              </div>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td>Total Price:</td>
+                    <td></td>
+                    <td>${orderPrice.totalOrderPrice.toFixed(2)}</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>Tax:</td>
+                    <td></td>
+                    <td>${orderPrice.tax.toFixed(2)}</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>Total Price After Tax:</td>
+                    <td></td>
+                    <td>${orderPrice.totalOrderPriceAfterTax.toFixed(2)}</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
         </div>
@@ -315,3 +337,99 @@ class Menu extends Component {
 }
 
 export default Menu;
+
+{
+  /* <div className="container">
+<div className="row">
+  <div className="col-md-10 mx-auto">
+    <h2>
+      <FormattedMessage
+        id="order.title"
+        defaultMessage="Đơn hàng"
+      />
+    </h2>
+    {order.length > 0 ? (
+      <div>
+        {order.map((item) => (
+          <div key={item.id}>
+            {item.drink !== undefined ? (
+              <Drink
+                {...item}
+                onChange={(drink, price) =>
+                  this.handleDrinkUpdate(drink, price)
+                }
+              />
+            ) : (
+              <Food
+                {...item}
+                onChange={(food, price) =>
+                  this.handleFoodUpdate(food, price)
+                }
+              />
+            )}
+            <div className="row">
+              <button
+                className="btn btn-danger mx-auto"
+                onClick={() =>
+                  this.handleRemoveOrderItem(item.id)
+                }
+              >
+                <FormattedMessage
+                  id="order.remove"
+                  defaultMessage="Remove"
+                />
+              </button>
+            </div>
+          </div>
+        ))}
+        <br />
+        <div className="text-center">
+          <button
+            onClick={this.handleClearOrder}
+            className="btn btn-secondary mr-2"
+          >
+            <FormattedMessage
+              id="order.clear"
+              defaultMessage="Clear Order"
+            />
+          </button>
+          <div className="text-center">
+            <h3>
+              <FormattedMessage
+                id="order.price"
+                defaultMessage="Order Price"
+              />
+              : ${orderPrice.totalOrderPrice.toFixed(2)}
+            </h3>
+            <h3>
+              <FormattedMessage
+                id="order.tax"
+                defaultMessage="Tax"
+              />
+              : ${orderPrice.tax.toFixed(2)}
+            </h3>
+            <h3>
+              <FormattedMessage
+                id="order.priceAfterTax"
+                defaultMessage="Order Price After Tax"
+              />
+              : ${orderPrice.totalOrderPriceAfterTax.toFixed(2)}
+            </h3>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <p>
+        <FormattedMessage
+          id="order.empty"
+          defaultMessage="No items in order."
+        />
+      </p>
+    )}
+  </div>
+</div>
+</div> */
+}
+
+{
+}
