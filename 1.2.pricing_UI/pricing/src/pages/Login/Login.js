@@ -69,6 +69,18 @@ class Login extends React.Component {
                     onClose={() => this.setState({ showError: false })}
                   >
                     Wrong username or password. Please try again.
+                    <br />
+                    Customer Account:
+                    <br />
+                    username: customer
+                    <br />
+                    password: customer
+                    <br />
+                    <br />
+                    Staff Account:
+                    <br />
+                    username: staff <br />
+                    password: staff
                   </Alert>
                 )}
                 <form onSubmit={this.handleFormSubmit}>
