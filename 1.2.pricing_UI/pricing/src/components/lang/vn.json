@@ -1,10 +1,11 @@
 {
     "menu.title": "Thực Đơn",
-    "menu.addOrder": "Thêm để đặt hàng",
-    "order.title": "Đơn hàng",
-    "order.clear": "Xoá đơn hàng",
-    "order.price": "Giá đơn hàng",
-    "order.tax": "Thuế",
-    "order.priceAfterTax": "Giá sau thuế",
-    "order.empty": "Đơn hàng của bạn đang trống."
+    "menu.addCart": "Thêm để đặt hàng",
+    "cart.title": "Giỏ Hàng",
+    "cart.clear": "Xoá Gió Hàng",
+    "cart.price": "Giá Giỏ Hàng",
+    "cart.tax": "Thuế",
+    "cart.priceAfterTax": "Giá sau thuế",
+    "cart.empty": "Giỏ Hàng của bạn đang trống",
+    "cart.addOrder": "Đặt giỏ hàng"
 }
