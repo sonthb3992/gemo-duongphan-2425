@@ -77,27 +77,12 @@ class Modal extends Component {
                 {(activeCart.status === "Completed" ||
                   activeCart.status === "Cancelled") &&
                   null}
-                {activeCart.status === "In Progress" ||
-                  (activeCart.status === "Pending" && (
-                    <div>
-                      {user.role == "staff" ? (
-                        <>
-                          <button
-                            className="btn btn-danger mr-2"
-                            onClick={() =>
-                              updateCartStatus(activeCartId, "Cancelled")
-                            }
-                          >
-                            Cancel Order
-                          </button>
-                          <button
-                            className="btn btn-success mr-2"
-                            onClick={() =>
-                              updateCartStatus(activeCartId, "Completed")
-                            }
-                          >
-                            Complete Order
-                          </button>
+                {(activeCart.status == "In Progress" ||
+                  activeCart.status === "Pending") && (
+                  <div>
+                    {user.role == "staff" ? (
+                      <>
+                        {activeCart.status === "Pending" && (
                           <button
                             className="btn btn-warning"
                             onClick={() =>
@@ -106,19 +91,38 @@ class Modal extends Component {
                           >
                             In Progress
                           </button>
-                        </>
-                      ) : (
+                        )}
+                        {activeCart.status === "In Progress" && (
+                          <button
+                            className="btn btn-success mr-2"
+                            onClick={() =>
+                              updateCartStatus(activeCartId, "Completed")
+                            }
+                          >
+                            Complete Order
+                          </button>
+                        )}
                         <button
-                          className="btn btn-danger"
+                          className="btn btn-danger mr-2"
                           onClick={() =>
                             updateCartStatus(activeCartId, "Cancelled")
                           }
                         >
                           Cancel Order
                         </button>
-                      )}
-                    </div>
-                  ))}
+                      </>
+                    ) : (
+                      <button
+                        className="btn btn-danger"
+                        onClick={() =>
+                          updateCartStatus(activeCartId, "Cancelled")
+                        }
+                      >
+                        Cancel Order
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
