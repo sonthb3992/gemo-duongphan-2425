@@ -1,16 +1,22 @@
 import React, { Component } from "react";
 
 class Modal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: JSON.parse(localStorage.getItem("user")),
+    };
+  }
   render() {
     const {
       activeCartId,
       activeCart,
       isModalOpen,
       closeModal,
-      updateCartStatusCompleted,
-      updateCartStatusCancelled,
+      updateCartStatus,
     } = this.props;
     const { items } = activeCart;
+    const { user } = this.state;
     return (
       <div
         className="modal"
@@ -71,22 +77,48 @@ class Modal extends Component {
                 {(activeCart.status === "Completed" ||
                   activeCart.status === "Cancelled") &&
                   null}
-                {activeCart.status === "In Progress" && (
-                  <div>
-                    <button
-                      className="btn btn-danger mr-2"
-                      onClick={() => updateCartStatusCancelled(activeCartId)}
-                    >
-                      Cancel Order
-                    </button>
-                    <button
-                      className="btn btn-success"
-                      onClick={() => updateCartStatusCompleted(activeCartId)}
-                    >
-                      Complete Order
-                    </button>
-                  </div>
-                )}
+                {activeCart.status === "In Progress" ||
+                  (activeCart.status === "Pending" && (
+                    <div>
+                      {user.role == "staff" ? (
+                        <>
+                          <button
+                            className="btn btn-danger mr-2"
+                            onClick={() =>
+                              updateCartStatus(activeCartId, "Cancelled")
+                            }
+                          >
+                            Cancel Order
+                          </button>
+                          <button
+                            className="btn btn-success mr-2"
+                            onClick={() =>
+                              updateCartStatus(activeCartId, "Completed")
+                            }
+                          >
+                            Complete Order
+                          </button>
+                          <button
+                            className="btn btn-warning"
+                            onClick={() =>
+                              updateCartStatus(activeCartId, "In Progress")
+                            }
+                          >
+                            In Progress
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          className="btn btn-danger"
+                          onClick={() =>
+                            updateCartStatus(activeCartId, "Cancelled")
+                          }
+                        >
+                          Cancel Order
+                        </button>
+                      )}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>

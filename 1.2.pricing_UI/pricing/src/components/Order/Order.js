@@ -16,10 +16,19 @@ class Order extends Component {
     };
   }
 
+  componentDidMount = () => {
+    const carts = localStorage.getItem("carts");
+    if (carts) {
+      this.setState({
+        carts: JSON.parse(carts),
+      });
+    }
+  };
+
   addToOrder = (cart) => {
     const updatedCart = {
       ...cart,
-      status: "In Progress",
+      status: "Pending",
       id: uuidv4(),
     };
 
@@ -28,7 +37,7 @@ class Order extends Component {
         carts: [...prevState.carts, updatedCart],
       }),
       () => {
-        console.log(this.state.carts);
+        localStorage.setItem("carts", JSON.stringify(this.state.carts));
       }
     );
   };
@@ -43,32 +52,24 @@ class Order extends Component {
         isModalOpen: true,
         activeCart: activeCart,
       },
-      () => {
-        console.log("activeCartItems", this.state.activeCartItems);
-      }
+      () => {}
     );
   };
 
-  updateCartStatusCompleted = (cartId) => {
+  updateCartStatus = (cartId, status) => {
     const { carts } = this.state;
     const cart = carts.find((cart) => cart.id === cartId);
-    cart.status = "Completed";
-    this.setState({
-      isModalOpen: false,
-      carts: carts,
-      activeCart: {},
-    });
-  };
-
-  updateCartStatusCancelled = (cartId) => {
-    const { carts } = this.state;
-    const cart = carts.find((cart) => cart.id === cartId);
-    cart.status = "Cancelled";
-    this.setState({
-      carts: carts,
-      isModalOpen: false,
-      activeCart: {},
-    });
+    cart.status = status;
+    this.setState(
+      {
+        carts: carts,
+        isModalOpen: false,
+        activeCart: {},
+      },
+      () => {
+        localStorage.setItem("carts", JSON.stringify(this.state.carts));
+      }
+    );
   };
 
   closeModal = () => {
@@ -84,6 +85,8 @@ class Order extends Component {
     let filteredCarts = [];
     if (filteredCartStatus === "all") {
       filteredCarts = carts;
+    } else if (filteredCartStatus === "pending") {
+      filteredCarts = carts.filter((cart) => cart.status === "Pending");
     } else if (filteredCartStatus === "completed") {
       filteredCarts = carts.filter((cart) => cart.status === "Completed");
     } else if (filteredCartStatus === "cancelled") {
@@ -94,7 +97,7 @@ class Order extends Component {
 
     return (
       <div className="container">
-        <h2>
+        <h2 style={{ marginTop: "15px" }}>
           <FormattedMessage id="order.title" defaultMessage="Order" />
         </h2>
         <div className="row mb-3">
@@ -110,13 +113,35 @@ class Order extends Component {
             </button>
             <button
               className={`btn ${
+                filteredCartStatus === "pending"
+                  ? "btn-primary"
+                  : "btn-secondary"
+              } mr-2`}
+              onClick={() => this.setState({ filteredCartStatus: "pending" })}
+            >
+              Pending
+            </button>
+            <button
+              className={`btn ${
+                filteredCartStatus === "inProgress"
+                  ? "btn-primary"
+                  : "btn-secondary"
+              } mr-2`}
+              onClick={() =>
+                this.setState({ filteredCartStatus: "inProgress" })
+              }
+            >
+              In Progress
+            </button>
+            <button
+              className={`btn ${
                 filteredCartStatus === "completed"
                   ? "btn-primary"
                   : "btn-secondary"
               } mr-2`}
               onClick={() => this.setState({ filteredCartStatus: "completed" })}
             >
-              Show Completed Carts
+              Completed
             </button>
             <button
               className={`btn ${
@@ -126,19 +151,7 @@ class Order extends Component {
               } mr-2`}
               onClick={() => this.setState({ filteredCartStatus: "cancelled" })}
             >
-              Show Cancelled Carts
-            </button>
-            <button
-              className={`btn ${
-                filteredCartStatus === "inProgress"
-                  ? "btn-primary"
-                  : "btn-secondary"
-              }`}
-              onClick={() =>
-                this.setState({ filteredCartStatus: "inProgress" })
-              }
-            >
-              Show In Progress Carts
+              Cancelled
             </button>
           </div>
         </div>
@@ -168,8 +181,7 @@ class Order extends Component {
             activeCart={activeCart}
             isModalOpen={isModalOpen}
             closeModal={this.closeModal}
-            updateCartStatusCompleted={this.updateCartStatusCompleted}
-            updateCartStatusCancelled={this.updateCartStatusCancelled}
+            updateCartStatus={this.updateCartStatus}
           />
         )}
       </div>

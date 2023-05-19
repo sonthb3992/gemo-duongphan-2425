@@ -7,5 +7,6 @@
     "cart.tax": "Tax",
     "cart.priceAfterTax": "cart Price After Tax",
     "cart.empty": "No items in cart",
-    "cart.addOrder": "Add To Order"
+    "cart.addOrder": "Add To Order",
+    "order.title": "Order"
 }

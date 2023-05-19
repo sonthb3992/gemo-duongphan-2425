@@ -86,7 +86,7 @@ class Cart extends Component {
 
     return (
       <div className="container border rounded">
-        <h2>
+        <h2 style={{ marginTop: "15px" }}>
           <FormattedMessage id="cart.title" defaultMessage="Cart" />
         </h2>
 
