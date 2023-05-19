@@ -30,6 +30,10 @@ class Order extends Component {
       ...cart,
       status: "Pending",
       id: uuidv4(),
+      items: cart.items.map((item) => ({
+        ...item,
+        id: uuidv4(),
+      })),
     };
 
     this.setState(
@@ -37,6 +41,7 @@ class Order extends Component {
         carts: [...prevState.carts, updatedCart],
       }),
       () => {
+        console.log(this.state.carts);
         localStorage.setItem("carts", JSON.stringify(this.state.carts));
       }
     );
