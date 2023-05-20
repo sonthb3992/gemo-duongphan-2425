@@ -26,6 +26,10 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
   });
 
+app.get("/", (req, res) => {
+  res.send("Hello, World!");
+});
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
