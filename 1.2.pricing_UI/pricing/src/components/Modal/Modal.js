@@ -115,7 +115,7 @@ class Modal extends Component {
                       </>
                     ) : (
                       <>
-                        {activeOrder.status === "In Progress" && (
+                        {activeOrder.status !== "In Progress" && (
                           <button
                             className="btn btn-danger"
                             onClick={() =>
