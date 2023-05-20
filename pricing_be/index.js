@@ -33,11 +33,11 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
   });
 
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
   res.send("Hello, World!");
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -69,7 +69,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/register", async (req, res) => {
+app.post("/api/register", async (req, res) => {
   const { username, password, role } = req.body;
 
   try {
@@ -96,7 +96,7 @@ app.post("/register", async (req, res) => {
 });
 
 // Create a new order
-app.post("/users/:userId/orders", async (req, res) => {
+app.post("/api/users/:userId/orders", async (req, res) => {
   try {
     const { userId } = req.params;
     const { items, status, cartPrice } = req.body;
@@ -144,7 +144,7 @@ async function getOrdersByUserId(userId, userRole) {
   }
 }
 
-app.get("/users/:userId/orders", async (req, res) => {
+app.get("/api/users/:userId/orders", async (req, res) => {
   const { userId } = req.params;
   const user = await User.findById(userId);
   const userRole = user ? user.role : null;
@@ -158,7 +158,7 @@ app.get("/users/:userId/orders", async (req, res) => {
   }
 });
 
-app.put("/users/:userId/orders/:orderId/status", async (req, res) => {
+app.put("/api/users/:userId/orders/:orderId/status", async (req, res) => {
   const { orderId, userId } = req.params;
   const { status } = req.body;
 
