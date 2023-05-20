@@ -114,14 +114,18 @@ class Modal extends Component {
                         </button>
                       </>
                     ) : (
-                      <button
-                        className="btn btn-danger"
-                        onClick={() =>
-                          updateOrderStatus(activeOrderId, "Cancelled")
-                        }
-                      >
-                        Cancel Order
-                      </button>
+                      <>
+                        {activeOrder.status === "In Progress" && (
+                          <button
+                            className="btn btn-danger"
+                            onClick={() =>
+                              updateOrderStatus(activeOrderId, "Cancelled")
+                            }
+                          >
+                            Cancel Order
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
