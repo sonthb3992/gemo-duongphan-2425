@@ -1,5 +1,6 @@
 import React from "react";
-
+import { Alert } from "react-bootstrap";
+import { FormattedMessage, IntlProvider } from "react-intl";
 const FOOD_BASE_PRICE = 3;
 
 const FOOD_CUSTOMIZATIONS = {
@@ -11,14 +12,15 @@ const FOOD_CUSTOMIZATIONS = {
     Butter: 0.5,
     "Cream Cheese": 0.5,
   },
+  showError: false,
+  errorText: "",
 };
 
 class Food extends React.Component {
   constructor(props) {
     super(props);
-    const { id, food, additionalFoods } = props;
+    const { food, additionalFoods } = props;
     this.state = {
-      id,
       food,
       additionalFoods,
       price: 0,
@@ -32,6 +34,10 @@ class Food extends React.Component {
   handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
     const inputValue = type === "checkbox" ? checked : value;
+    this.setState({
+      showError: false,
+      errorText: "",
+    });
     if (name == "additionalFoods") {
       let { additionalFoods } = this.state;
       if (checked == true) additionalFoods.push(value);
@@ -55,7 +61,10 @@ class Food extends React.Component {
   getCustomizationPrice() {
     const foodCustomization = FOOD_CUSTOMIZATIONS[this.state.food];
     if (!foodCustomization) {
-      alert(`Invalid food: ${this.state.food}. Please choose a valid food.`);
+      this.setState({
+        showError: true,
+        errorText: `Invalid food: ${this.state.food}. Please choose a valid food.`,
+      });
       return 0;
     }
 
@@ -65,9 +74,10 @@ class Food extends React.Component {
       let additionalFood = additionalFoods[i];
       let additionalFoodPrice = foodCustomization[additionalFood];
       if (additionalFoodPrice === undefined) {
-        alert(
-          `Invalid additionalFood: ${additionalFood} for food: ${this.state.food}. Please choose a valid additionalFood.`
-        );
+        this.setState({
+          showError: true,
+          errorText: `Invalid additionalFood: ${additionalFood} for food: ${this.state.food}. Please choose a valid additionalFood.`,
+        });
         return 0;
       }
       additionalFoodsPrice += additionalFoodPrice;
@@ -78,6 +88,11 @@ class Food extends React.Component {
   getBasePrice() {
     return FOOD_BASE_PRICE;
   }
+
+  handleAddToCart = () => {
+    const { showError, errorText, ...itemCopy } = this.state;
+    this.props.onAddToCart(itemCopy);
+  };
 
   setPrice() {
     const basePrice = this.getBasePrice();
@@ -97,13 +112,21 @@ class Food extends React.Component {
   }
 
   render() {
-    const { food, additionalFoods, price } = this.state;
+    const { food, additionalFoods, showError, errorText } = this.state;
 
     return (
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-6">
             <h2>Food</h2>
+            {showError && (
+              <Alert
+                variant="danger"
+                onClose={() => this.setState({ showError: false })}
+              >
+                {errorText}
+              </Alert>
+            )}
             <label className="form-label">Food:</label>
             <select
               className="form-control"
@@ -135,6 +158,18 @@ class Food extends React.Component {
             </ul>
             <div className="text-center">
               <h3>Price: ${this.state.price.toFixed(2)}</h3>
+            </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="btn btn-primary mt-2"
+                onClick={this.handleAddToCart}
+              >
+                <FormattedMessage
+                  id="menu.addCart"
+                  defaultMessage="Add To Cart"
+                />
+              </button>
             </div>
           </div>
         </div>

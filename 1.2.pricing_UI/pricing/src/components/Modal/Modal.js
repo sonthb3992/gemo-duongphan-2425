@@ -7,16 +7,18 @@ class Modal extends Component {
       user: JSON.parse(localStorage.getItem("user")),
     };
   }
+
   render() {
     const {
-      activeCartId,
-      activeCart,
+      activeOrderId,
+      activeOrder,
       isModalOpen,
       closeModal,
-      updateCartStatus,
+      updateOrderStatus,
     } = this.props;
-    const { items } = activeCart;
+    const { items } = activeOrder || [];
     const { user } = this.state;
+
     return (
       <div
         className="modal"
@@ -25,7 +27,7 @@ class Modal extends Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Items in Cart</h5>
+              <h5 className="modal-title">Items in Order</h5>
               <button type="button" className="close" onClick={closeModal}>
                 <span>&times;</span>
               </button>
@@ -68,35 +70,35 @@ class Modal extends Component {
             </div>
             <div className="modal-footer">
               <div>
-                <span className="mr-2">Status: {activeCart.status}</span>
+                <span className="mr-2">Status: {activeOrder.status}</span>
                 <br />
                 <span className="mr-2">
                   Price:{" $"}
-                  {activeCart.cartPrice.totalCartPriceAfterTax.toFixed(2)}
+                  {activeOrder.cartPrice.totalCartPriceAfterTax.toFixed(2)}
                 </span>
-                {(activeCart.status === "Completed" ||
-                  activeCart.status === "Cancelled") &&
+                {(activeOrder.status === "Completed" ||
+                  activeOrder.status === "Cancelled") &&
                   null}
-                {(activeCart.status == "In Progress" ||
-                  activeCart.status === "Pending") && (
+                {(activeOrder.status === "In Progress" ||
+                  activeOrder.status === "Pending") && (
                   <div>
-                    {user.role == "staff" ? (
+                    {user.role === "staff" ? (
                       <>
-                        {activeCart.status === "Pending" && (
+                        {activeOrder.status === "Pending" && (
                           <button
                             className="btn btn-warning"
                             onClick={() =>
-                              updateCartStatus(activeCartId, "In Progress")
+                              updateOrderStatus(activeOrderId, "In Progress")
                             }
                           >
                             In Progress
                           </button>
                         )}
-                        {activeCart.status === "In Progress" && (
+                        {activeOrder.status === "In Progress" && (
                           <button
                             className="btn btn-success mr-2"
                             onClick={() =>
-                              updateCartStatus(activeCartId, "Completed")
+                              updateOrderStatus(activeOrderId, "Completed")
                             }
                           >
                             Complete Order
@@ -105,7 +107,7 @@ class Modal extends Component {
                         <button
                           className="btn btn-danger mr-2"
                           onClick={() =>
-                            updateCartStatus(activeCartId, "Cancelled")
+                            updateOrderStatus(activeOrderId, "Cancelled")
                           }
                         >
                           Cancel Order
@@ -115,7 +117,7 @@ class Modal extends Component {
                       <button
                         className="btn btn-danger"
                         onClick={() =>
-                          updateCartStatus(activeCartId, "Cancelled")
+                          updateOrderStatus(activeOrderId, "Cancelled")
                         }
                       >
                         Cancel Order

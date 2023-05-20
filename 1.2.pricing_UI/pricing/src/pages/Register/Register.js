@@ -1,25 +1,21 @@
 import React from "react";
 import { Alert } from "react-bootstrap";
-import { Navigate } from "react-router-dom";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
-class Login extends React.Component {
+class Register extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       username: "",
       password: "",
+      role: "customer",
       showError: false,
       errorText: "",
     };
   }
-
-  componentDidMount = () => {
-    console.log("backendUrl", process.env);
-  };
 
   handleUsernameChange = (e) => {
     this.setState({ username: e.target.value });
@@ -29,64 +25,71 @@ class Login extends React.Component {
     this.setState({ password: e.target.value });
   };
 
-  handleFormSubmit = (e) => {
+  handleRoleChange = (e) => {
+    this.setState({ role: e.target.value });
+  };
+
+  handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    const { username, password } = this.state;
+    const { username, password, role } = this.state;
 
     // Check if username or password is empty
     if (!username || !password) {
       this.setState({
         showError: true,
         errorText: "Please enter both username and password",
+        showSuccess: false,
+        successText: "",
       });
       return;
     }
 
-    axios
-      .post(`${backendUrl}/login`, { username, password })
-      .then((response) => {
-        const data = response.data;
-        if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-          window.location.reload();
-        } else {
-          this.setState({
-            showError: true,
-            errorText: "Wrong username or password. Please try again.",
-          });
-        }
-      })
-      .catch((error) => {
-        let errorMessage = "Login: failed";
-
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          errorMessage = error.response.data.error;
-        }
-
-        this.setState({
-          showError: true,
-          errorText: errorMessage,
-        });
+    try {
+      // Make the registration request
+      const response = await axios.post(`${backendUrl}/register`, {
+        username,
+        password,
+        role,
       });
+
+      // Registration success
+      this.setState({
+        username: "",
+        password: "",
+        role: "customer",
+        showError: false,
+        errorText: "",
+        showSuccess: true,
+        successText: "Registration successful!",
+      });
+    } catch (error) {
+      console.error("Error during registration:", error);
+      let errorMessage = "Registration failed";
+
+      if (error.response && error.response.data && error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
+
+      this.setState({
+        showError: true,
+        errorText: errorMessage,
+        showSuccess: false,
+        successText: "",
+      });
+    }
   };
 
   render() {
-    const { showError, errorText } = this.state;
-    const user = JSON.parse(localStorage.getItem("user"));
+    const { showError, errorText, showSuccess, successText } = this.state;
 
     return (
       <div className="container">
-        {user ? <Navigate to="/" /> : null}
         <div className="row justify-content-center">
           <div className="col-md-6">
             <div className="card mt-5">
               <div className="card-header">
-                <h4>Login</h4>
+                <h4>Register</h4>
               </div>
               <div className="card-body">
                 {showError && (
@@ -95,6 +98,14 @@ class Login extends React.Component {
                     onClose={() => this.setState({ showError: false })}
                   >
                     {errorText}
+                  </Alert>
+                )}
+                {showSuccess && (
+                  <Alert
+                    variant="success"
+                    onClose={() => this.setState({ showSuccess: false })}
+                  >
+                    {successText}
                   </Alert>
                 )}
                 <form onSubmit={this.handleFormSubmit}>
@@ -120,12 +131,24 @@ class Login extends React.Component {
                       onChange={this.handlePasswordChange}
                     />
                   </div>
+                  <div className="form-group">
+                    <label htmlFor="role">Role</label>
+                    <select
+                      className="form-control"
+                      id="role"
+                      value={this.state.role}
+                      onChange={this.handleRoleChange}
+                    >
+                      <option value="customer">Customer</option>
+                      <option value="staff">Staff</option>
+                    </select>
+                  </div>
                   <div className="mt-4">
                     <button type="submit" className="btn btn-primary">
-                      Login
-                    </button>
-                    <Link to="/register" className="btn btn-primary ml-2 mt-2">
                       Register
+                    </button>
+                    <Link to="/login" className="btn btn-secondary ml-2 mt-2">
+                      Login
                     </Link>
                   </div>
                 </form>
@@ -138,4 +161,4 @@ class Login extends React.Component {
   }
 }
 
-export default Login;
+export default Register;

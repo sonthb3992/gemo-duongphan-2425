@@ -2,102 +2,136 @@ import React, { Component } from "react";
 import { FormattedMessage } from "react-intl";
 import "./Order.css";
 import Modal from "../Modal/Modal";
-import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 class Order extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      carts: [],
-      activeCartId: null,
+      orders: [],
+      activeOrderId: null,
       isModalOpen: false,
-      activeCart: {},
-      filteredCartStatus: "all",
+      activeOrder: {},
+      filteredOrderStatus: "all",
+      user: null,
     };
   }
 
   componentDidMount = () => {
-    const carts = localStorage.getItem("carts");
-    if (carts) {
-      this.setState({
-        carts: JSON.parse(carts),
-      });
-    }
-  };
-
-  addToOrder = (cart) => {
-    const updatedCart = {
-      ...cart,
-      status: "Pending",
-      id: uuidv4(),
-      items: cart.items.map((item) => ({
-        ...item,
-        id: uuidv4(),
-      })),
-    };
-
+    const user = JSON.parse(localStorage.getItem("user"));
     this.setState(
-      (prevState) => ({
-        carts: [...prevState.carts, updatedCart],
-      }),
+      {
+        user: user,
+      },
       () => {
-        console.log(this.state.carts);
-        localStorage.setItem("carts", JSON.stringify(this.state.carts));
+        this.getOrdersByUserId();
       }
     );
   };
 
-  handleCartClick = (cartId) => {
-    const { carts } = this.state;
-    const activeCart = carts.find((cart) => cart.id === cartId);
+  getOrdersByUserId = async () => {
+    const { user } = this.state;
+    try {
+      const response = await axios.get(
+        `${backendUrl}/users/${user._id}/orders`
+      );
+      const orders = response.data;
+      this.setState({ orders });
+    } catch (error) {
+      console.error("Error retrieving orders:", error);
+    }
+  };
+
+  addToOrder = async (order) => {
+    const { user } = this.state;
+    const updatedOrder = {
+      ...order,
+      status: "Pending",
+      items: order.items.map((item) => ({
+        ...item,
+      })),
+    };
+
+    try {
+      const response = await axios.post(
+        `${backendUrl}/users/${user._id}/orders`,
+        updatedOrder
+      );
+      const createdOrder = response.data;
+      console.log("New order created:", createdOrder);
+
+      this.getOrdersByUserId();
+    } catch (error) {
+      console.error("Error creating order:", error);
+    }
+  };
+
+  handleOrderClick = (orderId) => {
+    const { orders } = this.state;
+    const activeOrder = orders.find((order) => order._id === orderId);
 
     this.setState(
       {
-        activeCartId: cartId,
+        activeOrderId: orderId,
         isModalOpen: true,
-        activeCart: activeCart,
+        activeOrder: activeOrder,
       },
       () => {}
     );
   };
 
-  updateCartStatus = (cartId, status) => {
-    const { carts } = this.state;
-    const cart = carts.find((cart) => cart.id === cartId);
-    cart.status = status;
-    this.setState(
-      {
-        carts: carts,
-        isModalOpen: false,
-        activeCart: {},
-      },
-      () => {
-        localStorage.setItem("carts", JSON.stringify(this.state.carts));
-      }
-    );
+  updateOrderStatus = (orderId, status) => {
+    // Make HTTP request using Axios to update order status
+    const userId = this.state.user._id;
+    axios
+      .put(`${backendUrl}/users/${userId}/orders/${orderId}/status`, {
+        status,
+      })
+      .then((response) => {
+        // Order status updated successfully
+        console.log("Order status updated:", response.data.order);
+
+        this.setState({
+          isModalOpen: false,
+          activeOrder: {},
+        });
+
+        this.getOrdersByUserId();
+      })
+      .catch((error) => {
+        console.error(error);
+        // Handle error
+      });
   };
 
   closeModal = () => {
     this.setState({
       isModalOpen: false,
-      activeCart: {},
+      activeOrder: {},
     });
   };
 
   render() {
-    const { filteredCartStatus, activeCartId, activeCart, isModalOpen, carts } =
-      this.state;
-    let filteredCarts = [];
-    if (filteredCartStatus === "all") {
-      filteredCarts = carts;
-    } else if (filteredCartStatus === "pending") {
-      filteredCarts = carts.filter((cart) => cart.status === "Pending");
-    } else if (filteredCartStatus === "completed") {
-      filteredCarts = carts.filter((cart) => cart.status === "Completed");
-    } else if (filteredCartStatus === "cancelled") {
-      filteredCarts = carts.filter((cart) => cart.status === "Cancelled");
-    } else if (filteredCartStatus === "inProgress") {
-      filteredCarts = carts.filter((cart) => cart.status === "In Progress");
+    const {
+      filteredOrderStatus,
+      activeOrderId,
+      activeOrder,
+      isModalOpen,
+      orders,
+    } = this.state;
+    let filteredOrders = [];
+    if (filteredOrderStatus === "all") {
+      filteredOrders = orders;
+    } else if (filteredOrderStatus === "pending") {
+      filteredOrders = orders.filter((order) => order.status === "Pending");
+    } else if (filteredOrderStatus === "completed") {
+      filteredOrders = orders.filter((order) => order.status === "Completed");
+    } else if (filteredOrderStatus === "cancelled") {
+      filteredOrders = orders.filter((order) => order.status === "Cancelled");
+    } else if (filteredOrderStatus === "inProgress") {
+      filteredOrders = orders.filter((order) => order.status === "In Progress");
     }
 
     return (
@@ -109,69 +143,72 @@ class Order extends Component {
           <div className="col-md-12">
             <button
               className={`btn ${
-                filteredCartStatus === "all" ? "btn-primary" : "btn-secondary"
+                filteredOrderStatus === "all" ? "btn-primary" : "btn-secondary"
               } mr-2`}
-              onClick={() => this.setState({ filteredCartStatus: "all" })}
-              filteredCartStatus
+              onClick={() => this.setState({ filteredOrderStatus: "all" })}
             >
-              Show All Carts
+              Show All Orders
             </button>
             <button
               className={`btn ${
-                filteredCartStatus === "pending"
+                filteredOrderStatus === "pending"
                   ? "btn-primary"
                   : "btn-secondary"
               } mr-2`}
-              onClick={() => this.setState({ filteredCartStatus: "pending" })}
+              onClick={() => this.setState({ filteredOrderStatus: "pending" })}
             >
               Pending
             </button>
             <button
               className={`btn ${
-                filteredCartStatus === "inProgress"
+                filteredOrderStatus === "inProgress"
                   ? "btn-primary"
                   : "btn-secondary"
               } mr-2`}
               onClick={() =>
-                this.setState({ filteredCartStatus: "inProgress" })
+                this.setState({ filteredOrderStatus: "inProgress" })
               }
             >
               In Progress
             </button>
             <button
               className={`btn ${
-                filteredCartStatus === "completed"
+                filteredOrderStatus === "completed"
                   ? "btn-primary"
                   : "btn-secondary"
               } mr-2`}
-              onClick={() => this.setState({ filteredCartStatus: "completed" })}
+              onClick={() =>
+                this.setState({ filteredOrderStatus: "completed" })
+              }
             >
               Completed
             </button>
             <button
               className={`btn ${
-                filteredCartStatus === "cancelled"
+                filteredOrderStatus === "cancelled"
                   ? "btn-primary"
                   : "btn-secondary"
               } mr-2`}
-              onClick={() => this.setState({ filteredCartStatus: "cancelled" })}
+              onClick={() =>
+                this.setState({ filteredOrderStatus: "cancelled" })
+              }
             >
               Cancelled
             </button>
           </div>
         </div>
         <div className="row">
-          {(filteredCarts || this.state.carts).map((cart, index) => (
+          {filteredOrders.map((order, index) => (
             <div key={index} className="col-md-4 mt-4">
               <div className="card">
                 <div className="card-header">
-                  <h5 className="card-title">Cart #{index + 1}</h5>
-                  <div>Status: {cart.status}</div>{" "}
+                  <h5 className="card-title">Order #{index + 1}</h5>
+                  <div>Status: {order.status}</div>
                 </div>
                 <div className="card-body">
                   <button
                     className="btn btn-primary"
-                    onClick={() => this.handleCartClick(cart.id)}
+                    onClick={() => this.handleOrderClick(order._id)}
                   >
                     Show Items
                   </button>
@@ -182,11 +219,11 @@ class Order extends Component {
         </div>
         {isModalOpen && (
           <Modal
-            activeCartId={activeCartId}
-            activeCart={activeCart}
+            activeOrderId={activeOrderId}
+            activeOrder={activeOrder}
             isModalOpen={isModalOpen}
             closeModal={this.closeModal}
-            updateCartStatus={this.updateCartStatus}
+            updateOrderStatus={this.updateOrderStatus}
           />
         )}
       </div>

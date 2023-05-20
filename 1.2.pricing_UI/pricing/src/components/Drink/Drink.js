@@ -1,4 +1,6 @@
 import React from "react";
+import { Alert } from "react-bootstrap";
+import { FormattedMessage, IntlProvider } from "react-intl";
 
 const TYPE_DRINKS_BASE_PRICES = {
   coffee: 2,
@@ -33,7 +35,6 @@ class Drink extends React.Component {
   constructor(props) {
     super(props);
     const {
-      id,
       drink,
       type,
       size,
@@ -42,7 +43,6 @@ class Drink extends React.Component {
       chocolateSaucePumps,
     } = props;
     this.state = {
-      id,
       drink,
       type,
       size,
@@ -50,6 +50,8 @@ class Drink extends React.Component {
       milkOption,
       chocolateSaucePumps,
       price: 0,
+      showError: false,
+      errorText: "",
     };
   }
 
@@ -60,6 +62,10 @@ class Drink extends React.Component {
   handleInputChange = (event) => {
     const { name, value, type, checked } = event.target;
     const inputValue = type === "checkbox" ? checked : value;
+    this.setState({
+      showError: false,
+      errorText: "",
+    });
     this.setState({ [name]: inputValue }, () => {
       this.setPrice();
     });
@@ -67,9 +73,10 @@ class Drink extends React.Component {
 
   getBasePriceByDrink() {
     if (TYPE_DRINKS_BASE_PRICES[this.state.drink] === undefined) {
-      alert(
-        `Invalid drink ${this.state.drink} selected. Please choose a valid drink.`
-      );
+      this.setState({
+        showError: true,
+        errorText: `Invalid drink ${this.state.drink} selected. Please choose a valid drink.`,
+      });
       return 0;
     }
     return TYPE_DRINKS_BASE_PRICES[this.state.drink];
@@ -77,9 +84,10 @@ class Drink extends React.Component {
 
   getTypeAdjustment() {
     if (TYPE_ADJUSTMENTS[this.state.type] === undefined) {
-      alert(
-        `Invalid drink ${this.state.type} selected. Please choose a valid type.`
-      );
+      this.setState({
+        showError: true,
+        errorText: `Invalid drink ${this.state.type} selected. Please choose a valid type.`,
+      });
       return 0;
     }
     return TYPE_ADJUSTMENTS[this.state.type];
@@ -87,13 +95,17 @@ class Drink extends React.Component {
 
   getSizeAdjustment() {
     if (this.state.size === "L" && this.state.type === "hot") {
-      alert(
-        `Invalid size ${this.state.size} for ${this.state.type} drink. Please choose a valid size.`
-      );
+      this.setState({
+        showError: true,
+        errorText: `Invalid size ${this.state.size} for ${this.state.type} drink. Please choose a valid size.`,
+      });
       return 0;
     }
     if (SIZE_ADJUSTMENTS[this.state.size] === undefined) {
-      alert("Invalid drink size selected. Please choose a valid size.");
+      this.setState({
+        showError: true,
+        errorText: "Invalid drink size selected. Please choose a valid size.",
+      });
       return 0;
     }
     return SIZE_ADJUSTMENTS[this.state.size];
@@ -105,9 +117,10 @@ class Drink extends React.Component {
 
   getMilkOptionAdjustment() {
     if (MILK_OPTION_ADJUSTMENTS[this.state.milkOption] === undefined) {
-      alert(
-        `Invalid milk option: ${this.state.milkOption}. Please choose a valid option.`
-      );
+      this.setState({
+        showError: true,
+        errorText: `Invalid milk option: ${this.state.milkOption}. Please choose a valid option.`,
+      });
       return 0;
     }
     return MILK_OPTION_ADJUSTMENTS[this.state.milkOption];
@@ -115,15 +128,17 @@ class Drink extends React.Component {
 
   getChocolateSauceAdjustment() {
     if (this.state.chocolateSaucePumps > 0 && this.state.type !== "hot") {
-      alert(
-        `Chocolate sauce pumps cannot be added to a ${this.state.type} drink.`
-      );
+      this.setState({
+        showError: true,
+        errorText: `Chocolate sauce pumps cannot be added to a ${this.state.type} drink.`,
+      });
       return 0;
     }
     if (this.state.chocolateSaucePumps > MAX_CHOCOLATE_SAUCE_PUMPS) {
-      alert(
-        `Invalid number of chocolate sauce pumps: ${this.state.chocolateSaucePumps}. Please choose a valid number.`
-      );
+      this.setState({
+        showError: true,
+        errorText: `Invalid number of chocolate sauce pumps: ${this.state.chocolateSaucePumps}. Please choose a valid number.`,
+      });
       return 0;
     }
     return this.state.chocolateSaucePumps <= 2
@@ -158,12 +173,26 @@ class Drink extends React.Component {
 
     return totalPrice;
   }
+
+  handleAddToCart = () => {
+    const { showError, errorText, ...itemCopy } = this.state;
+    this.props.onAddToCart(itemCopy);
+  };
   render() {
+    const { showError, errorText } = this.state;
     return (
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-6">
             <h2>Drink</h2>
+            {showError && (
+              <Alert
+                variant="danger"
+                onClose={() => this.setState({ showError: false })}
+              >
+                {errorText}
+              </Alert>
+            )}
             <form>
               <div className="form-group">
                 <label>Drink:</label>
@@ -243,6 +272,18 @@ class Drink extends React.Component {
             </form>
             <div className="text-center">
               <h3>Price: ${this.state.price.toFixed(2)}</h3>
+            </div>
+            <div className="text-center">
+              <button
+                type="submit"
+                className="btn btn-primary mt-2"
+                onClick={this.handleAddToCart}
+              >
+                <FormattedMessage
+                  id="menu.addCart"
+                  defaultMessage="Add To Cart"
+                />
+              </button>
             </div>
           </div>
         </div>

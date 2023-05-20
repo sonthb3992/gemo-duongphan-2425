@@ -3,7 +3,6 @@
 import React, { Component } from "react";
 import Drink from "../../components/Drink/Drink";
 import Food from "../../components/Food/Food";
-import { v4 as uuidv4 } from "uuid";
 import { FormattedMessage, IntlProvider } from "react-intl";
 import { Form } from "react-bootstrap";
 import Cart from "../../components/Cart/Cart";
@@ -40,9 +39,8 @@ class MenuPage extends Component {
 
   componentDidMount() {}
 
-  handleAddToCart = (event, item) => {
-    // Call the function in the Cart component
-    event.preventDefault();
+  handleAddToCart = (item) => {
+    console.log(item);
     this.cart.addToCart(item);
   };
 
@@ -119,14 +117,6 @@ class MenuPage extends Component {
     this.setState({ locale: event.target.value });
   };
 
-  // handleRoleChange = () => {
-  //   const { user } = this.state;
-  //   user.role = user.role === "customer" ? "staff" : "customer";
-  //   this.setState(user, () => {
-  //     localStorage.setItem("userRole", user.role);
-  //   });
-  // };
-
   handleLogout = () => {
     localStorage.removeItem("user");
     window.location.reload();
@@ -135,7 +125,6 @@ class MenuPage extends Component {
   render() {
     const { locale, drink, food, order } = this.state;
     const user = JSON.parse(localStorage.getItem("user"));
-    console.log(user);
     if (user == null) {
       return <Navigate to="/login" />;
     }
@@ -143,13 +132,16 @@ class MenuPage extends Component {
     return (
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
         <Navbar bg="dark" variant="dark" expand="lg">
-          <Navbar.Brand>Gemo</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">
+            Gemo
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ml-auto">
               {user ? (
                 <>
-                  <Nav.Link>{user.username}</Nav.Link>
+                  <Nav.Link>Username: {user.username}</Nav.Link>
+                  <Nav.Link>User's Role: {user.role}</Nav.Link>
                   <Nav.Link onClick={this.handleLogout}>Logout</Nav.Link>
                 </>
               ) : (
@@ -166,57 +158,27 @@ class MenuPage extends Component {
             <option value="vn">Tiếng Việt</option>
           </Form.Select>
         </div>
-        {/* <div>
-          <button
-            className={`btn ${
-              user.role === "customer" ? "btn-primary" : "btn-secondary"
-            }`}
-            onClick={this.handleRoleChange}
-          >
-            {user.role === "customer" ? "Customer" : "Staff"}
-          </button>
-        </div> */}
         <div>
           {user && user.role === "customer" && (
             <div className="row">
               <div className="col-md-6">
-                <form onSubmit={(event) => this.handleAddToCart(event, drink)}>
-                  <Drink
-                    {...drink}
-                    onChange={(drink, price) =>
-                      this.handleDrinkUpdate(drink, price)
-                    }
-                  />
-                  <div className="text-center">
-                    <button type="submit" className="btn btn-primary mt-2">
-                      <FormattedMessage
-                        id="menu.addCart"
-                        defaultMessage="Add To Cart"
-                      />
-                    </button>
-                  </div>
-                </form>
+                <Drink
+                  {...drink}
+                  onChange={(drink, price) =>
+                    this.handleDrinkUpdate(drink, price)
+                  }
+                  onAddToCart={this.handleAddToCart}
+                />
               </div>
               <div
                 className="col-md-6"
                 style={{ borderLeft: "1px solid black" }}
               >
-                <form onSubmit={(event) => this.handleAddToCart(event, food)}>
-                  <Food
-                    {...food}
-                    onChange={(food, price) =>
-                      this.handleFoodUpdate(food, price)
-                    }
-                  />
-                  <div className="text-center">
-                    <button type="submit" className="btn btn-primary mt-2">
-                      <FormattedMessage
-                        id="menu.addCart"
-                        defaultMessage="Add To Cart"
-                      />
-                    </button>
-                  </div>
-                </form>
+                <Food
+                  {...food}
+                  onChange={(food, price) => this.handleFoodUpdate(food, price)}
+                  onAddToCart={this.handleAddToCart}
+                />
               </div>
             </div>
           )}

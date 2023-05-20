@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { FormattedMessage } from "react-intl";
-import { v4 as uuidv4 } from "uuid";
 
 class Cart extends Component {
   constructor(props) {
@@ -24,16 +23,12 @@ class Cart extends Component {
     const { cart } = this.state;
     const updatedItem = {
       ...item,
-      id: uuidv4(),
     };
     const updatedItems = [...cart.items, updatedItem];
     const updatedCart = {
       ...cart,
       items: updatedItems,
     };
-    if (!updatedCart.id || updatedCart.id === "") {
-      updatedCart.id = uuidv4();
-    }
     this.setState({ cart: updatedCart }, () => {
       this.updateCartTotalPrice();
     });
