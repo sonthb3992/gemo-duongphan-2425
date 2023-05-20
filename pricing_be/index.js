@@ -4,6 +4,7 @@ const User = require("./models/user");
 const Order = require("./models/order");
 const bcrypt = require("bcrypt");
 const cors = require("cors");
+require("dotenv").config();
 
 // Create an Express app
 const app = express();
@@ -11,9 +12,7 @@ app.use(express.json()); // Add this line to parse the request body as JSON
 app.use(cors());
 
 // Database connection string
-const dbConnectionString =
-  "mongodb+srv://admin:admin@pricing-db.r9kbpvi.mongodb.net/pricing_db";
-
+const dbConnectionString = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
 // Connect to MongoDB
 mongoose
   .connect(dbConnectionString, {
