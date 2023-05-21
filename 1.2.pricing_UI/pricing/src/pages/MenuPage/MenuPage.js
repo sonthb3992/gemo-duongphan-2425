@@ -54,24 +54,25 @@ class MenuPage extends React.Component {
       <div className={tw`container mx-auto px-4 py-8`}>
         <nav className={tw`flex mb-4`}>
           <button
-            className={tw`mr-4 text-blue-500`}
+            className={tw`mr-4 text-blue-500 hover:text-blue-700 font-bold`}
             onClick={() => this.handleTabChange("all")}
           >
             All Items
           </button>
           <button
-            className={tw`mr-4 text-blue-500`}
+            className={tw`mr-4 text-blue-500 hover:text-blue-700 font-bold`}
             onClick={() => this.handleTabChange("drink")}
           >
             Drinks
           </button>
           <button
-            className={tw`text-blue-500`}
+            className={tw`text-blue-500 hover:text-blue-700 font-bold`}
             onClick={() => this.handleTabChange("food")}
           >
             Food
           </button>
         </nav>
+
         <div
           className={tw`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4`}
         >
