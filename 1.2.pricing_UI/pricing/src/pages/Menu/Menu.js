@@ -7,8 +7,7 @@ import { FormattedMessage, IntlProvider } from "react-intl";
 import { Form } from "react-bootstrap";
 import Cart from "../../components/Cart/Cart";
 import Order from "../../components/Order/Order";
-import { Link } from "react-router-dom";
-import { Navbar, Nav } from "react-bootstrap";
+import NavBar from "../../components/NavBar";
 import { Navigate } from "react-router-dom";
 
 const initialDrink = {
@@ -37,8 +36,6 @@ class MenuPage extends Component {
     };
   }
 
-  componentDidMount() {}
-
   handleAddToCart = (item) => {
     console.log(item);
     this.cart.addToCart(item);
@@ -49,7 +46,7 @@ class MenuPage extends Component {
   };
 
   handleDrinkUpdate = (updatedDrink, price) => {
-    if (updatedDrink && updatedDrink.id == undefined) {
+    if (updatedDrink && updatedDrink.id === undefined) {
       this.setState({
         drink: {
           drink: updatedDrink.drink,
@@ -83,7 +80,7 @@ class MenuPage extends Component {
     let { Food, order } = this.state;
     const newAdditionalFoods = [...updatedFood.additionalFoods];
 
-    if (updatedFood.id == undefined) {
+    if (updatedFood.id === undefined) {
       this.setState({
         food: {
           food: updatedFood.food,
@@ -117,11 +114,6 @@ class MenuPage extends Component {
     this.setState({ locale: event.target.value });
   };
 
-  handleLogout = () => {
-    localStorage.removeItem("user");
-    window.location.reload();
-  };
-
   render() {
     const { locale, drink, food, order } = this.state;
     const user = JSON.parse(localStorage.getItem("user"));
@@ -131,27 +123,7 @@ class MenuPage extends Component {
 
     return (
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
-        <Navbar bg="dark" variant="dark" expand="lg">
-          <Navbar.Brand as={Link} to="/">
-            Gemo
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ml-auto">
-              {user ? (
-                <>
-                  <Nav.Link>Username: {user.username}</Nav.Link>
-                  <Nav.Link>User's Role: {user.role}</Nav.Link>
-                  <Nav.Link onClick={this.handleLogout}>Logout</Nav.Link>
-                </>
-              ) : (
-                <Nav.Link as={Link} to="/login">
-                  Login
-                </Nav.Link>
-              )}
-            </Nav>
-          </Navbar.Collapse>
-        </Navbar>
+        <NavBar />
         <div className="d-flex justify-content-end">
           <Form.Select value={locale} onChange={this.handleLanguageChange}>
             <option value="en">English</option>
@@ -160,7 +132,7 @@ class MenuPage extends Component {
         </div>
         <div>
           {user && user.role === "customer" && (
-            <div className="row">
+            <div className="row" style={{marginRight: 0}}>
               <div className="col-md-6">
                 <Drink
                   {...drink}
@@ -183,7 +155,7 @@ class MenuPage extends Component {
             </div>
           )}
           <hr />
-          {user && user.role === "customer" && (
+          {/* {user && user.role === "customer" && (
             <div class="container border rounded">
               <div className="row">
                 <Cart
@@ -193,7 +165,7 @@ class MenuPage extends Component {
               </div>
             </div>
           )}
-          <hr />
+          <hr /> */}
           <div class="container border rounded">
             <div className="row">
               <Order ref={(order) => (this.order = order)} />
