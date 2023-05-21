@@ -4,7 +4,8 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Login extends React.Component {
   constructor(props) {

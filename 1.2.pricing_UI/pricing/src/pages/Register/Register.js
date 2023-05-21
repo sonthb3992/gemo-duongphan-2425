@@ -3,7 +3,8 @@ import { Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Register extends React.Component {
   constructor(props) {

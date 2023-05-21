@@ -4,7 +4,8 @@ import "./Order.css";
 import Modal from "../Modal/Modal";
 import axios from "axios";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Order extends Component {
   constructor(props) {
@@ -121,6 +122,7 @@ class Order extends Component {
       isModalOpen,
       orders,
     } = this.state;
+    console.log(orders);
     let filteredOrders = [];
     if (filteredOrderStatus === "all") {
       filteredOrders = orders;
