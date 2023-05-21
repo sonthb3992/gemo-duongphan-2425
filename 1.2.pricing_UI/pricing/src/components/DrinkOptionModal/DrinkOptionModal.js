@@ -307,22 +307,20 @@ class DrinkOptionModal extends React.Component {
             </div>
           </div>
 
-          <div className={tw`flex justify-end items-center mt-4`}>
-            <div className={tw`mr-10 text-lg font-bold`}>
-              <strong>Price:</strong> ${this.state.price}
+          <div className={tw`flex justify-end items-center mt-4 space-x-4`}>
+            <div className={tw`text-lg font-bold`}>
+              <strong>Price:</strong> ${this.state.price.toFixed(2)}
             </div>
-            <div className={tw`mr-4`}>
+            <div>
               <button
                 onClick={this.handleConfirm}
                 className={tw`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded`}
               >
                 Confirm
               </button>
-            </div>
-            <div className={tw`mr-4`}>
               <button
                 onClick={onClose}
-                className={tw`bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded`}
+                className={tw`bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 ml-2 rounded`}
               >
                 Cancel
               </button>
