@@ -9,6 +9,7 @@ import Cart from "../../components/Cart/Cart";
 import Order from "../../components/Order/Order";
 import NavBar from "../../components/NavBar";
 import { Navigate } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 
 const initialDrink = {
   drink: "coffee",
@@ -37,8 +38,10 @@ class MenuPage extends Component {
   }
 
   handleAddToCart = (item) => {
-    console.log(item);
-    this.cart.addToCart(item);
+    item.id = uuidv4();
+    var cartItems = JSON.parse(localStorage.getItem("cartItems"));
+    const newCartItems = cartItems ? [...cartItems, item] : [item]
+    localStorage.setItem("cartItems", JSON.stringify(newCartItems));
   };
 
   handleAddToOrder = (cart) => {
@@ -132,7 +135,7 @@ class MenuPage extends Component {
         </div>
         <div>
           {user && user.role === "customer" && (
-            <div className="row" style={{marginRight: 0}}>
+            <div className="row" style={{ marginRight: 0 }}>
               <div className="col-md-6">
                 <Drink
                   {...drink}

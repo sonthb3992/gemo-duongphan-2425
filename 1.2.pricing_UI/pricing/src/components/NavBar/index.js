@@ -7,6 +7,8 @@ import Cart from "../Cart/Cart";
 import { useState } from "react";
 
 const NavBar = () => {
+    const [isModalOpen, setOpenModal] = useState(false)
+
     const user = JSON.parse(localStorage.getItem("user"));
     if (user == null) {
         return <Navigate to="/login" />;
@@ -16,9 +18,6 @@ const NavBar = () => {
         localStorage.removeItem("user");
         window.location.reload();
     };
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [isModalOpen, setOpenModal] = useState(false)
 
     return (
         <>
@@ -58,7 +57,7 @@ const NavBar = () => {
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
-            <Cart show={isModalOpen} handleClose={() => setOpenModal(false)} />
+            {isModalOpen && <Cart isModalOpen={isModalOpen} handleClose={() => setOpenModal(false)} />}
         </>
     )
 }
