@@ -2,7 +2,7 @@ import React from "react";
 import { tw } from "twind";
 import Item from "../../components/Item/Item";
 import Cart from "../../components/Cart/Cart";
-import { FormattedMessage, IntlProvider } from "react-intl";
+import { IntlProvider } from "react-intl";
 
 import coffeeImage from "../../images/coffee.png";
 import milkteaImage from "../../images/milktea.png";
@@ -61,9 +61,9 @@ class MenuPage extends React.Component {
   getLocaleMessages(locale) {
     switch (locale) {
       case "vn":
-        return require("../../components/lang/vn.json");
+        return require("../../lang/vn.json");
       default:
-        return require("../../components/lang/en.json");
+        return require("../../lang/en.json");
     }
   }
 

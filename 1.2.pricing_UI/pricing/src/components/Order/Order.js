@@ -1,58 +1,206 @@
-import React from "react";
+import React, { Component } from "react";
+import ProgressBar from "../../components/ProgressBar/ProgressBar";
 
-const ProgressBar = ({ status }) => {
-  let barWidth = "0%";
-  let backgroundColor = "";
+import coffeeImage from "../../images/coffee.png";
+import milkteaImage from "../../images/milktea.png";
+import bagelImage from "../../images/bagel.png";
+import sandwichImage from "../../images/sandwich.png";
+import axios from "axios";
 
-  if (status === "Pending") {
-    barWidth = "5%";
-    backgroundColor = "#ffcc00";
-  } else if (status === "In Progress") {
-    barWidth = "50%";
-    backgroundColor = "#ff9900";
-  } else if (status === "Completed") {
-    barWidth = "100%";
-    backgroundColor = "#00cc00";
-  } else if (status === "Cancelled") {
-    barWidth = "100%";
-    backgroundColor = "#ff0000";
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
+
+class Order extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      order: this.props.order,
+      user: JSON.parse(localStorage.getItem("user")),
+    };
   }
 
-  return (
-    <div className="row d-flex align-items-center">
-      <div className="col-md-2">
-        <p className="text-muted mb-0 small">Track Order</p>
-      </div>
-      <div className="col-md-10">
-        <div
-          className="progress"
-          style={{ height: "6px", borderRadius: "16px" }}
-        >
-          <div
-            className="progress-bar"
-            role="progressbar"
-            style={{
-              width: barWidth,
-              borderRadius: "16px",
-              backgroundColor: backgroundColor,
-            }}
-            aria-valuenow={barWidth}
-            aria-valuemin="0"
-            aria-valuemax="100"
-          ></div>
-        </div>
-        <div className="d-flex justify-content-between mb-1">
-          <p className="text-muted mt-1 mb-0 small ms-xl-5">Pending</p>
-          <p className="text-muted mt-1 mb-0 small ms-xl-5">In Progress</p>
-          {status === "Completed" ? (
-            <p className="text-muted mt-1 mb-0 small ms-xl-5">Completed</p>
-          ) : (
-            <p className="text-muted mt-1 mb-0 small ms-xl-5">Cancelled</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+  componentDidMount = () => {};
 
-export default ProgressBar;
+  renderItemImage(item) {
+    if (item.drink) {
+      if (item.drink === "Coffee") {
+        return coffeeImage;
+      } else if (item.drink === "Milk Tea") {
+        return milkteaImage;
+      }
+    } else if (item.food) {
+      if (item.food === "Bagel") {
+        return bagelImage;
+      } else if (item.food === "Sandwich") {
+        return sandwichImage;
+      }
+    }
+  }
+
+  updateOrderStatus = (orderId, status) => {
+    const userId = this.state.user._id;
+    axios
+      .put(`${backendUrl}/users/${userId}/orders/${orderId}/status`, {
+        status,
+      })
+      .then((response) => {
+        console.log("Order status updated:", response.data.order);
+        this.props.getOrdersByUserId();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  render() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const { order } = this.state;
+    const { items } = order;
+    console.log("order", order);
+    return (
+      <div>
+        <div key={order._id} className="col-lg-10 col-xl-12 p-6 mb-4">
+          <div className="card">
+            <div className="card-header bg-light">
+              <h5 className="text-muted mb-0">Order #{order._id}</h5>
+            </div>
+            <div className="card-body">
+              <div className="card mb-4">
+                <div className="card-body">
+                  {items.map((item) => (
+                    <div className="row border rounded mb-2" key={item._id}>
+                      <div className="col-md-2">
+                        <div className="image-container">
+                          <img
+                            src={this.renderItemImage(item)}
+                            className="img-fluid"
+                            alt="Item"
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-10 mt-2 text-left">
+                        <div className="text-muted mb-0 fs-4">
+                          <h2 className="fw-bold fs-6">
+                            {item.drink || item.food}
+                          </h2>
+                        </div>
+                        <div>
+                          {item.drink !== undefined ? (
+                            <p>
+                              Topping: {item.type}, size {item.size}
+                              {item.hasWhippingCream && ", has whipping cream"}
+                              {item.milkOption !== "None" &&
+                                `, ${item.milkOption}`}
+                              {item.chocolateSaucePumps > 0 &&
+                                `, ${item.chocolateSaucePumps} chocolate sauce`}
+                            </p>
+                          ) : (
+                            <p>
+                              {item.selectedCustomizations.length > 0 &&
+                                "Topping: "}
+                              {item.selectedCustomizations.join(", ")}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="mb-0">
+                            <span className="fw-bold">Price:</span>
+                            {" $"}
+                            {item.price.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <hr className="mb-4 mt-4" />
+                  <ProgressBar status={order.status} />
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-between pt-2">
+                <p className="fw-bold mb-0">Order Details</p>
+                <p className="text-muted mb-0">
+                  <span className="fw-bold me-4">Total</span> $
+                  {order.cartPrice.totalCartPrice.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="d-flex justify-content-between pt-2">
+                <p className="text-muted mb-0"></p>
+                <p className="text-muted mb-0">
+                  <span className="fw-bold me-4">Tax</span>
+                  {" $"}
+                  {order.cartPrice.tax.toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            <div className="card-footer bg-primary text-white">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  {user.role === "staff" ? (
+                    <>
+                      {order.status === "Pending" && (
+                        <button
+                          className="btn btn-warning"
+                          onClick={() =>
+                            this.updateOrderStatus(order._id, "In Progress")
+                          }
+                        >
+                          In Progress
+                        </button>
+                      )}
+                      {order.status === "In Progress" && (
+                        <button
+                          className="btn btn-success mr-2"
+                          onClick={() =>
+                            this.updateOrderStatus(order._id, "Completed")
+                          }
+                        >
+                          Complete Order
+                        </button>
+                      )}
+                      {order.status !== "Completed" &&
+                        order.status !== "Cancelled" && (
+                          <button
+                            className="btn btn-danger mr-2"
+                            onClick={() =>
+                              this.updateOrderStatus(order._id, "Cancelled")
+                            }
+                          >
+                            Cancel Order
+                          </button>
+                        )}
+                    </>
+                  ) : (
+                    <>
+                      {order.status === "Pending" && (
+                        <button
+                          className="btn btn-danger"
+                          onClick={() =>
+                            this.updateOrderStatus(order._id, "Cancelled")
+                          }
+                        >
+                          Cancel Order
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+                <h5 className="d-flex align-items-center justify-content-end text-uppercase mb-0">
+                  Total paid:{" "}
+                  <span className="h2 mb-0 ms-2">
+                    ${order.cartPrice.totalCartPriceAfterTax.toFixed(2)}
+                  </span>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default Order;
