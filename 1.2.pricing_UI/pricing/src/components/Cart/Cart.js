@@ -1,4 +1,8 @@
-import React, { Component } from "react";
+// import React, { Component } from "react";
+// import { FormattedMessage } from "react-intl";
+
+import { Component } from "react";
+import { Button, Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
 
@@ -10,7 +14,7 @@ class Cart extends Component {
     super(props);
     this.state = {
       cart: {
-        items: [],
+        items: this.getCartItems(),
         status: "",
         id: "",
         cartPrice: {
@@ -20,28 +24,39 @@ class Cart extends Component {
         },
       },
       locale: "en",
-      user: null,
+      isModalOpen: props.isModalOpen,
     };
+
+    this.handleClose = props.handleClose;
+    this.updateCartTotalPrice();
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     this.setState({ user });
-  }
+  };
+  // addToCart = (item) => {
+  //   const { cart } = this.state;
+  //   const updatedItem = {
+  //     ...item,
+  //   };
+  //   const updatedItems = [...cart.items, updatedItem];
+  //   const updatedCart = {
+  //     ...cart,
+  //     items: updatedItems,
+  //   };
+  //   this.setState({ cart: updatedCart }, () => {
+  //     this.updateCartTotalPrice();
+  //   });
+  // };
 
-  addToCart = (item) => {
-    const { cart } = this.state;
-    const updatedItem = {
-      ...item,
-    };
-    const updatedItems = [...cart.items, updatedItem];
-    const updatedCart = {
-      ...cart,
-      items: updatedItems,
-    };
-    this.setState({ cart: updatedCart }, () => {
-      this.updateCartTotalPrice();
-    });
+  getCartItems = () => {
+    var cartItems = JSON.parse(localStorage.getItem("cartItems"));
+    return cartItems ? cartItems : [];
+  };
+
+  setCartItems = (items) => {
+    localStorage.setItem("cartItems", JSON.stringify(items));
   };
 
   updateCartTotalPrice = () => {
@@ -66,6 +81,7 @@ class Cart extends Component {
         cart.items.splice(i, 1);
       }
     }
+    this.setCartItems(cart.items);
     this.setState(cart, () => {
       this.updateCartTotalPrice();
     });
@@ -75,6 +91,7 @@ class Cart extends Component {
     const { cart } = this.state;
     cart.items = [];
     cart.status = "";
+    this.setCartItems(cart.items);
     this.setState({ cart }, () => {
       this.updateCartTotalPrice();
     });
@@ -82,6 +99,7 @@ class Cart extends Component {
 
   handleAddToOrder = async () => {
     const { cart, user } = this.state;
+    console.log("cart", cart);
     const order = cart;
     console.log(order);
     const updatedOrder = {
@@ -112,132 +130,144 @@ class Cart extends Component {
     const { items } = cart;
 
     return (
-      <div className="container border rounded">
-        <h2 style={{ marginTop: "15px" }}>
-          <FormattedMessage id="cart.title" defaultMessage="Cart" />
-        </h2>
-
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Product Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length > 0 ? (
-              <>
-                {items.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      {item.drink !== undefined ? (
-                        <p>
-                          Drink: {item.type} {item.drink}: size {item.size}
-                          {item.hasWhippingCream && ", has whipping cream"}
-                          {item.milkOption !== "none" && `, ${item.milkOption}`}
-                          {item.chocolateSaucePumps > 0 &&
-                            `, ${item.chocolateSaucePumps} chocolate sauce`}
-                        </p>
-                      ) : (
-                        <p>
-                          Food: {item.food}
-                          {item.selectedCustomizations.length > 0 && ": "}
-                          {item.selectedCustomizations.map((food, index) => (
-                            <span key={index}>
-                              {`${food}${
-                                index !== item.selectedCustomizations.length - 1
-                                  ? ", "
-                                  : ""
-                              }`}
-                            </span>
-                          ))}
-                        </p>
-                      )}
-                    </td>
-                    <td>{1}</td>
-                    <td>${item.price.toFixed(2)}</td>
+      <Modal
+        show={this.state.isModalOpen}
+        onHide={this.handleClose}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">Cart</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.length > 0 ? (
+                <>
+                  {items.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        {item.drink !== undefined ? (
+                          <p>
+                            Drink: {item.type} {item.drink}: size {item.size}
+                            {item.hasWhippingCream && ", has whipping cream"}
+                            {item.milkOption !== "none" &&
+                              `, ${item.milkOption}`}
+                            {item.chocolateSaucePumps > 0 &&
+                              `, ${item.chocolateSaucePumps} chocolate sauce`}
+                          </p>
+                        ) : (
+                          <p>
+                            Food: {item.food}
+                            {item.selectedCustomizations.length > 0 && ": "}
+                            {item.selectedCustomizations.map((food, index) => (
+                              <span key={index}>
+                                {`${food}${
+                                  index !==
+                                  item.selectedCustomizations.length - 1
+                                    ? ", "
+                                    : ""
+                                }`}
+                              </span>
+                            ))}
+                          </p>
+                        )}
+                      </td>
+                      <td>{1}</td>
+                      <td>${item.price.toFixed(2)}</td>
+                      <td>
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => this.handleRemoveCartItem(item.id)}
+                        >
+                          <FormattedMessage
+                            id="cart.remove"
+                            defaultMessage="Remove"
+                          />
+                        </button>
+                      </td>
+                      <td></td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <td>
                       <button
-                        className="btn btn-danger"
-                        onClick={() => this.handleRemoveCartItem(item.id)}
+                        onClick={this.handleClearCart}
+                        className="btn btn-secondary"
                       >
                         <FormattedMessage
-                          id="cart.remove"
-                          defaultMessage="Remove"
+                          id="cart.clear"
+                          defaultMessage="Clear Cart"
                         />
                       </button>
                     </td>
-                    <td></td>
                   </tr>
-                ))}
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      <button
+                        onClick={this.handleAddToOrder}
+                        className="btn btn-success"
+                      >
+                        <FormattedMessage
+                          id="cart.addOrder"
+                          defaultMessage="Add To Order"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                </>
+              ) : (
                 <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
                   <td>
-                    <button
-                      onClick={this.handleClearCart}
-                      className="btn btn-secondary"
-                    >
-                      <FormattedMessage
-                        id="cart.clear"
-                        defaultMessage="Clear Cart"
-                      />
-                    </button>
+                    <FormattedMessage
+                      id="cart.empty"
+                      defaultMessage="No items in cart"
+                    />
                   </td>
                 </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td>
-                    <button
-                      onClick={this.handleAddToOrder}
-                      className="btn btn-success"
-                    >
-                      <FormattedMessage
-                        id="cart.addOrder"
-                        defaultMessage="Add To Order"
-                      />
-                    </button>
-                  </td>
-                </tr>
-              </>
-            ) : (
+              )}
+            </tbody>
+            <tfoot>
               <tr>
-                <td>
-                  <FormattedMessage
-                    id="cart.empty"
-                    defaultMessage="No items in cart"
-                  />
-                </td>
+                <td>Total Price:</td>
+                <td></td>
+                {/* <td>${cart.cartPrice.totalCartPrice.toFixed(2)}</td> */}
+                <td></td>
               </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>Total Price:</td>
-              <td></td>
-              <td>${cart.cartPrice.totalCartPrice.toFixed(2)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Tax:</td>
-              <td></td>
-              <td>${cart.cartPrice.tax.toFixed(2)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Total Price After Tax:</td>
-              <td></td>
-              <td>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+              <tr>
+                <td>Tax:</td>
+                <td></td>
+                {/* <td>${cart.cartPrice.tax.toFixed(2)}</td> */}
+                <td></td>
+              </tr>
+              <tr>
+                <td>Total Price After Tax:</td>
+                <td></td>
+                {/* <td>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</td> */}
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={this.handleClose}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     );
   }
 }

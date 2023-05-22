@@ -23,7 +23,12 @@ class Item extends React.Component {
   handleConfirmModal = (item) => {
     this.setState({ showModal: false });
     const { showError, errorText, ...filteredItem } = item;
-    this.props.onAddToCart(filteredItem);
+
+    // TODO:
+    var cartItems = JSON.parse(localStorage.getItem("cartItems"));
+    const newCartItems = cartItems ? [...cartItems, item] : [item];
+    localStorage.setItem("cartItems", JSON.stringify(newCartItems));
+    // this.props.onAddToCart(filteredItem);
   };
 
   render() {
