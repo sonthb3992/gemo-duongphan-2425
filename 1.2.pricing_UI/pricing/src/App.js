@@ -9,11 +9,11 @@ import OrderPage from "./pages/OrderPage/OrderPage";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Menu />} />
+      <Route path="/" element={<MenuPage />} />
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="menu" element={<MenuPage />} />
-      <Route path="order" element={<OrderPage />} />
+      <Route path="orders" element={<OrderPage />} />
     </Routes>
   );
 }

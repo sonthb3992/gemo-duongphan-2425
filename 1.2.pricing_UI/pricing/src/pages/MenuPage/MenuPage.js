@@ -8,6 +8,7 @@ import coffeeImage from "../../images/coffee.png";
 import milkteaImage from "../../images/milktea.png";
 import bagelImage from "../../images/bagel.png";
 import sandwichImage from "../../images/sandwich.png";
+import CustomNavbar from "../../components/CustomNavbar/CustomNavbar.js";
 
 class MenuPage extends React.Component {
   constructor(props) {
@@ -53,7 +54,6 @@ class MenuPage extends React.Component {
   };
 
   handleAddToCart = (item) => {
-    console.log(item);
     this.cart.addToCart(item);
   };
 
@@ -77,6 +77,7 @@ class MenuPage extends React.Component {
 
     return (
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
+        <CustomNavbar />
         <div>
           <div className={tw`container mx-auto px-4 py-8`}>
             <nav className={tw`flex mb-4`}>

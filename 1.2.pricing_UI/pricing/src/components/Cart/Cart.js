@@ -1,5 +1,9 @@
 import React, { Component } from "react";
 import { FormattedMessage } from "react-intl";
+import axios from "axios";
+
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Cart extends Component {
   constructor(props) {
@@ -16,7 +20,13 @@ class Cart extends Component {
         },
       },
       locale: "en",
+      user: null,
     };
+  }
+
+  componentDidMount() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    this.setState({ user });
   }
 
   addToCart = (item) => {
@@ -70,9 +80,31 @@ class Cart extends Component {
     });
   };
 
-  handleAddToOrder = () => {
-    const { cart } = this.state;
-    this.props.addToOrder(cart);
+  handleAddToOrder = async () => {
+    const { cart, user } = this.state;
+    const order = cart;
+    console.log(order);
+    const updatedOrder = {
+      ...order,
+      status: "Pending",
+      items: order.items.map((item) => ({
+        ...item,
+      })),
+    };
+
+    try {
+      const response = await axios.post(
+        `${backendUrl}/users/${user._id}/orders`,
+        updatedOrder
+      );
+      const createdOrder = response.data;
+      // clear cart
+      this.handleClearCart();
+
+      this.getOrdersByUserId();
+    } catch (error) {
+      console.error("Error creating order:", error);
+    }
   };
 
   render() {

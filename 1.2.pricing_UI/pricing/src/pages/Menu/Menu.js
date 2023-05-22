@@ -43,9 +43,11 @@ class MenuPage extends Component {
     this.cart.addToCart(item);
   };
 
-  handleAddToOrder = (cart) => {
-    this.order.addToOrder(cart);
-  };
+  // handleAddToOrder = (cart) => {
+  //   this.order.addToOrder(cart);
+  // };
+
+
 
   handleDrinkUpdate = (updatedDrink, price) => {
     if (updatedDrink && updatedDrink.id == undefined) {

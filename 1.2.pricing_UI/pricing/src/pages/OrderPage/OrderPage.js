@@ -8,6 +8,7 @@ import bagelImage from "../../images/bagel.png";
 import sandwichImage from "../../images/sandwich.png";
 
 import "./OrderPage.css"; // Import the CSS file
+import CustomNavbar from "../../components/CustomNavbar/CustomNavbar";
 
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
@@ -47,6 +48,7 @@ class OrderPage extends Component {
         `${backendUrl}/users/${user._id}/orders`
       );
       const orders = response.data;
+      console.log(orders);
       this.setState({ orders }, () => {
         console.log(orders);
         const pageNumbers = Math.ceil(orders.length / this.state.ordersPerPage);
@@ -70,15 +72,15 @@ class OrderPage extends Component {
 
   renderItemImage(item) {
     if (item.drink) {
-      if (item.drink === "coffee") {
+      if (item.drink === "Coffee") {
         return coffeeImage;
-      } else if (item.drink === "milktea") {
+      } else if (item.drink === "Milk Tea") {
         return milkteaImage;
       }
     } else if (item.food) {
-      if (item.food === "bagel") {
+      if (item.food === "Bagel") {
         return bagelImage;
-      } else if (item.food === "sandwich") {
+      } else if (item.food === "Sandwich") {
         return sandwichImage;
       }
     }
@@ -230,10 +232,13 @@ class OrderPage extends Component {
 
   render() {
     return (
-      <div className="container border">
-        <h2 className="text-2xl align-items-center font-bold mb-4">Orders</h2>
-        <div className="space-y-4">{this.renderOrders()}</div>
-        {this.renderPagination()}
+      <div>
+        <CustomNavbar className="mb-2" />
+        <div className="container border">
+          <h2 className="text-2xl align-items-center font-bold mb-4">Orders</h2>
+          <div className="space-y-4">{this.renderOrders()}</div>
+          {this.renderPagination()}
+        </div>
       </div>
     );
   }
