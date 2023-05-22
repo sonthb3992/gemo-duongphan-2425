@@ -17,6 +17,7 @@ const FOOD_CUSTOMIZATIONS = {
 
 class FoodOptionModal extends React.Component {
   state = {
+    food: this.props.item.name,
     selectedCustomizations: [],
     price: 0,
     showError: false,
@@ -79,16 +80,9 @@ class FoodOptionModal extends React.Component {
   };
 
   handleConfirm = () => {
-    const { selectedCustomizations } = this.state;
-    const { onConfirm } = this.props;
-
-    const totalCustomizationPrice = selectedCustomizations.reduce(
-      (total, customization) =>
-        total + FOOD_CUSTOMIZATIONS[this.props.item.name][customization],
-      0
-    );
-
-    onConfirm(totalCustomizationPrice);
+    if (!this.state.showError) {
+      this.props.onConfirm(this.state);
+    }
   };
 
   getBasePrice() {
@@ -110,7 +104,7 @@ class FoodOptionModal extends React.Component {
         price: totalPrice,
       },
       () => {
-        // this.props.onChange(this.state, this.state.price);
+        // this.props.onChange(this.state);
       }
     );
   }

@@ -53,7 +53,6 @@ class DrinkOptionModal extends React.Component {
     this.setState({ showError: false });
 
     if (name === "hasWhippingCream") {
-      console.log(checked);
       this.setState({ hasWhippingCream: checked }, this.setPrice);
     } else {
       this.setState({ [name]: value }, this.setPrice);
@@ -169,11 +168,9 @@ class DrinkOptionModal extends React.Component {
       milkOptionAdjustment +
       chocolateSauceAdjustment;
 
-    if (this.state.showError) {
-      this.setState({ price: 0 });
-    } else {
-      this.setState({ price: totalPrice });
-    }
+    this.setState({ price: totalPrice }, () => {
+      // this.props.onChange(this.state);
+    });
 
     return totalPrice;
   }

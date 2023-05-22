@@ -111,11 +111,11 @@ class Cart extends Component {
                       ) : (
                         <p>
                           Food: {item.food}
-                          {item.additionalFoods.length > 0 && ": "}
-                          {item.additionalFoods.map((food, index) => (
+                          {item.selectedCustomizations.length > 0 && ": "}
+                          {item.selectedCustomizations.map((food, index) => (
                             <span key={index}>
                               {`${food}${
-                                index !== item.additionalFoods.length - 1
+                                index !== item.selectedCustomizations.length - 1
                                   ? ", "
                                   : ""
                               }`}

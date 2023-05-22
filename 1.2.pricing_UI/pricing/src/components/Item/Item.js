@@ -20,9 +20,10 @@ class Item extends React.Component {
     this.setState({ showModal: false });
   };
 
-  handleConfirmModal = (options) => {
-    console.log("Item added to cart with options:", options);
+  handleConfirmModal = (item) => {
     this.setState({ showModal: false });
+    const { showError, errorText, ...filteredItem } = item;
+    this.props.onAddToCart(filteredItem);
   };
 
   render() {
