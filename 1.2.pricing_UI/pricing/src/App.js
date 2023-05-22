@@ -4,7 +4,7 @@ import Menu from "./pages/Menu/Menu";
 import MenuPage from "./pages/MenuPage/MenuPage";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
-import Item from "./components/Item/Item";
+import OrderPage from "./pages/OrderPage/OrderPage";
 
 function App() {
   return (
@@ -12,8 +12,8 @@ function App() {
       <Route path="/" element={<Menu />} />
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
-      {/* <Route path="item" element={<Item />} /> */}
       <Route path="menu" element={<MenuPage />} />
+      <Route path="order" element={<OrderPage />} />
     </Routes>
   );
 }

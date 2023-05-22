@@ -52,7 +52,7 @@ class Item extends React.Component {
           />
         )}
 
-        <div className={tw`relative h-40 bg-gray-300`}>
+        <div className={tw`relative h-80 bg-gray-300`}>
           <img
             className={tw`absolute inset-0 object-cover w-full h-full transition duration-300 transform hover:scale-110`}
             src={item.image}

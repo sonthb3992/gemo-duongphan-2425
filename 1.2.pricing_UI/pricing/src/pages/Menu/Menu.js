@@ -6,7 +6,7 @@ import Food from "../../components/Food/Food";
 import { FormattedMessage, IntlProvider } from "react-intl";
 import { Form } from "react-bootstrap";
 import Cart from "../../components/Cart/Cart";
-import Order from "../../components/Order/Order";
+import Order from "../../components/Order_Deprecating/Order";
 import { Link } from "react-router-dom";
 import { Navbar, Nav } from "react-bootstrap";
 import { Navigate } from "react-router-dom";
@@ -40,7 +40,6 @@ class MenuPage extends Component {
   componentDidMount() {}
 
   handleAddToCart = (item) => {
-    console.log(item);
     this.cart.addToCart(item);
   };
 
@@ -124,6 +123,7 @@ class MenuPage extends Component {
 
   render() {
     const { locale, drink, food, order } = this.state;
+    console.log("order", order);
     const user = JSON.parse(localStorage.getItem("user"));
     if (user == null) {
       return <Navigate to="/login" />;
