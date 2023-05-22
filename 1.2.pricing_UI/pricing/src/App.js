@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import Menu from "./pages/Menu/Menu";
 import MenuPage from "./pages/MenuPage/MenuPage";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
