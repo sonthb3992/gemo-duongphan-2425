@@ -43,12 +43,10 @@ class Cart extends Component {
         updatedOrder
       );
       // clear cart
-      this.handleClearCart();
+      // this.handleClearCart();
 
       // show alert
       this.props.showAlert("success", "Order created successfully");
-
-      // this.getOrdersByUserId();
     } catch (error) {
       // show error alert
       this.props.showAlert("danger", `Error creating order: ${error.message}`);
@@ -90,7 +88,7 @@ class Cart extends Component {
                         <td>
                           {item.drink !== undefined ? (
                             <p>
-                              Drink: {item.type} {item.drink}: size {item.size}
+                              {item.type} {item.drink}: size {item.size}
                               {item.hasWhippingCream && ", has whipping cream"}
                               {item.milkOption !== "None" &&
                                 `, ${item.milkOption}`}
@@ -99,7 +97,7 @@ class Cart extends Component {
                             </p>
                           ) : (
                             <p>
-                              Food: {item.food}
+                              {item.food}
                               {item.selectedCustomizations.length > 0 && ": "}
                               {item.selectedCustomizations.map(
                                 (food, index) => (

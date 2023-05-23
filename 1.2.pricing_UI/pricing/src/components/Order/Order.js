@@ -67,13 +67,17 @@ class Order extends Component {
   render() {
     const user = JSON.parse(localStorage.getItem("user"));
     const { order } = this.state;
+    console.log(order);
     const { items } = order;
     return (
       <div>
         <div key={order._id} className="col-lg-10 col-xl-12 p-6 mb-4">
           <div className="card">
-            <div className="card-header bg-light">
+            <div className="card-header bg-light d-flex justify-content-between align-items-center">
               <h5 className="text-muted mb-0">Order #{order._id}</h5>
+              <h4 className="text-primary mb-0">
+                Ordered by {order.username}
+              </h4>{" "}
             </div>
             <div className="card-body">
               <div className="card mb-4">
