@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const cors = require("cors");
 const morgan = require("morgan");
 require("dotenv").config();
+const port = process.env.PORT || 8005;
 
 const app = express();
 
@@ -218,7 +219,6 @@ app.put("/api/users/:userId/orders/:orderId/status", async (req, res) => {
 });
 
 // Start the server
-const port = 8000;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
