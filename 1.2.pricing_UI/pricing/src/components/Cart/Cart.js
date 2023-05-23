@@ -43,7 +43,7 @@ class Cart extends Component {
         updatedOrder
       );
       // clear cart
-      // this.handleClearCart();
+      this.handleClearCart();
 
       // show alert
       this.props.showAlert("success", "Order created successfully");
