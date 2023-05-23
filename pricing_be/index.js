@@ -109,6 +109,7 @@ app.post("/api/users/:userId/orders", async (req, res) => {
 
     const newOrder = new Order({
       user: userId,
+      username: user.username,
       items: items,
       status: status,
       cartPrice: cartPrice,
