@@ -147,7 +147,7 @@ class Register extends React.Component {
                     <button type="submit" className="btn btn-primary">
                       Register
                     </button>
-                    <Link to="/login" className="btn btn-secondary ml-2 mt-2">
+                    <Link to="/login" className="btn btn-secondary ml-2">
                       Login
                     </Link>
                   </div>

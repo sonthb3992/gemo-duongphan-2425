@@ -125,7 +125,7 @@ class Login extends React.Component {
                     <button type="submit" className="btn btn-primary">
                       Login
                     </button>
-                    <Link to="/register" className="btn btn-primary ml-2 mt-2">
+                    <Link to="/register" className="btn btn-primary ml-2">
                       Register
                     </Link>
                   </div>
