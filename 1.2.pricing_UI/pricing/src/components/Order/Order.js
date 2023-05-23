@@ -6,6 +6,7 @@ import milkteaImage from "../../images/milktea.png";
 import bagelImage from "../../images/bagel.png";
 import sandwichImage from "../../images/sandwich.png";
 import axios from "axios";
+import "./Order.css";
 
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
@@ -75,7 +76,7 @@ class Order extends Component {
                         <div className="image-container">
                           <img
                             src={this.renderItemImage(item)}
-                            className="img-fluid"
+                            className="img-fluid image-item"
                             alt="Item"
                           />
                         </div>
@@ -190,7 +191,7 @@ class Order extends Component {
                   )}
                 </div>
                 <h5 className="d-flex align-items-center justify-content-end text-uppercase mb-0">
-                  Total paid:{" "}
+                  Total paid:{"  "}
                   <span className="h2 mb-0 ms-2">
                     ${order.cartPrice.totalCartPriceAfterTax.toFixed(2)}
                   </span>

@@ -139,7 +139,9 @@ class OrderPage extends Component {
       <div>
         <CustomNavbar className="mb-2" />
         <div className="container border rounded mt-2">
-          <h2 className="text-2xl align-items-center font-bold mb-4 mt-4">Orders</h2>
+          <h2 className="text-2xl align-items-center font-bold mb-4 mt-4">
+            Orders
+          </h2>
           <div>
             <Box sx={{ width: "100%", typography: "body1" }}>
               <TabContext value={tab}>
@@ -155,16 +157,20 @@ class OrderPage extends Component {
                     <Tab label="Cancelled" value="Cancelled" />
                   </TabList>
                 </Box>
-                {displayOrders.map((order) => (
-                  <div key={order._id}>
-                    <TabPanel value={tab} key={displayOrdersKey}>
-                      <Order
-                        order={order}
-                        getOrdersByUserId={this.getOrdersByUserId}
-                      />
-                    </TabPanel>
-                  </div>
-                ))}
+                {displayOrders.length === 0 ? (
+                  <h3 className="mt-4 mr-4">No orders available</h3>
+                ) : (
+                  displayOrders.map((order) => (
+                    <div key={order._id}>
+                      <TabPanel value={tab} key={displayOrdersKey}>
+                        <Order
+                          order={order}
+                          getOrdersByUserId={this.getOrdersByUserId}
+                        />
+                      </TabPanel>
+                    </div>
+                  ))
+                )}
               </TabContext>
             </Box>
           </div>

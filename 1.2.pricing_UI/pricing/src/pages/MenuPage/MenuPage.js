@@ -1,5 +1,4 @@
 import React from "react";
-import { tw } from "twind";
 import Item from "../../components/Item/Item";
 import Cart from "../../components/Cart/Cart";
 import { IntlProvider } from "react-intl";
@@ -79,31 +78,35 @@ class MenuPage extends React.Component {
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
         <CustomNavbar />
         <div>
-          <div className={tw`container mx-auto px-4 py-8`}>
-            <nav className={tw`flex mb-4`}>
+          <div className="container-xl mx-auto px-6 py-8">
+            <nav className="d-flex mb-4">
               <button
-                className={tw`mr-4 text-blue-500 hover:text-blue-700 font-bold`}
+                className={`btn btn-outline-primary me-4 mr-2 ${
+                  currentTab === "all" ? "active" : ""
+                }`}
                 onClick={() => this.handleTabChange("all")}
               >
                 All Items
               </button>
               <button
-                className={tw`mr-4 text-blue-500 hover:text-blue-700 font-bold`}
+                className={`btn btn-outline-primary me-4 mr-2 ${
+                  currentTab === "drink" ? "active" : ""
+                }`}
                 onClick={() => this.handleTabChange("drink")}
               >
                 Drinks
               </button>
               <button
-                className={tw`text-blue-500 hover:text-blue-700 font-bold`}
+                className={`btn btn-outline-primary ${
+                  currentTab === "food" ? "active" : ""
+                }`}
                 onClick={() => this.handleTabChange("food")}
               >
                 Food
               </button>
             </nav>
 
-            <div
-              className={tw`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4`}
-            >
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
               {filteredItems.map((item) => (
                 <Item
                   key={item.id}
@@ -114,7 +117,7 @@ class MenuPage extends React.Component {
             </div>
           </div>
           {user && user.role === "customer" && (
-            <div class="container border rounded">
+            <div className="container border rounded">
               <div className="row">
                 <Cart ref={(cart) => (this.cart = cart)} />
               </div>

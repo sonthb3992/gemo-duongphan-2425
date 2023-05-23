@@ -1,7 +1,6 @@
 import React from "react";
 import DrinkOptionModal from "../DrinkOptionModal/DrinkOptionModal";
 import FoodOptionModal from "../FoodOptionModal/FoodOptionModal";
-import coffeeImage from "../../images/coffee.png";
 import { tw } from "twind";
 
 class Item extends React.Component {
@@ -37,7 +36,7 @@ class Item extends React.Component {
 
     return (
       <div
-        className={tw`max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden`}
+        className={tw`max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden m-2`}
       >
         {showModal && item.type === "drink" && (
           <DrinkOptionModal
