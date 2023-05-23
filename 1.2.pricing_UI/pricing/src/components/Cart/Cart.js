@@ -15,7 +15,6 @@ class Cart extends Component {
       cart: {
         items: this.getCartItems(),
         status: "",
-        id: "",
         cartPrice: {
           totalCartPrice: 0,
           tax: 0,
@@ -98,9 +97,7 @@ class Cart extends Component {
 
   handleAddToOrder = async () => {
     const { cart, user } = this.state;
-    console.log("cart", cart);
     const order = cart;
-    console.log(order);
     const updatedOrder = {
       ...order,
       status: "Pending",
@@ -108,6 +105,7 @@ class Cart extends Component {
         ...item,
       })),
     };
+    console.log(updatedOrder);
 
     try {
       const response = await axios.post(
@@ -116,7 +114,7 @@ class Cart extends Component {
       );
       const createdOrder = response.data;
       // clear cart
-      this.handleClearCart();
+      // this.handleClearCart();
 
       this.getOrdersByUserId();
     } catch (error) {

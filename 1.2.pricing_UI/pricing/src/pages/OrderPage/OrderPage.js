@@ -24,6 +24,7 @@ class OrderPage extends Component {
       pageNumbers: 1,
       user: JSON.parse(localStorage.getItem("user")),
       tab: "Pending",
+      displayOrdersKey: 1,
     };
   }
 
@@ -64,14 +65,21 @@ class OrderPage extends Component {
   };
 
   updateDisplayOrders = () => {
-    const { currentPage, ordersPerPage, filteredOrders } = this.state;
+    const { currentPage, ordersPerPage, filteredOrders, displayOrdersKey } =
+      this.state;
     const indexOfLastOrder = currentPage * ordersPerPage;
     const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
     const displayOrders = filteredOrders.slice(
       indexOfFirstOrder,
       indexOfLastOrder
     );
-    this.setState({ displayOrders });
+    this.setState(
+      {
+        displayOrders,
+        displayOrdersKey: displayOrdersKey + 1, // Update the displayOrdersKey
+      },
+      () => {}
+    );
   };
 
   getOrdersByUserId = async () => {
@@ -81,10 +89,10 @@ class OrderPage extends Component {
         `${backendUrl}/users/${user._id}/orders`
       );
       const orders = response.data;
+      console.log("hello duong", orders);
       orders.reverse();
       this.setState({ orders }, () => {
         this.filteredOrdersUpdate();
-        this.updateDisplayOrders();
       });
     } catch (error) {
       console.error("Error retrieving orders:", error);
@@ -125,12 +133,13 @@ class OrderPage extends Component {
   };
 
   render() {
-    const { tab, displayOrders } = this.state;
+    const { tab, displayOrders, displayOrdersKey } = this.state;
+    console.log("displayOrders", displayOrders);
     return (
       <div>
         <CustomNavbar className="mb-2" />
-        <div className="container border">
-          <h2 className="text-2xl align-items-center font-bold mb-4">Orders</h2>
+        <div className="container border rounded mt-2">
+          <h2 className="text-2xl align-items-center font-bold mb-4 mt-4">Orders</h2>
           <div>
             <Box sx={{ width: "100%", typography: "body1" }}>
               <TabContext value={tab}>
@@ -147,12 +156,14 @@ class OrderPage extends Component {
                   </TabList>
                 </Box>
                 {displayOrders.map((order) => (
-                  <TabPanel key={order._id} value={tab}>
-                    <Order
-                      order={order}
-                      getOrdersByUserId={this.getOrdersByUserId}
-                    />
-                  </TabPanel>
+                  <div key={order._id}>
+                    <TabPanel value={tab} key={displayOrdersKey}>
+                      <Order
+                        order={order}
+                        getOrdersByUserId={this.getOrdersByUserId}
+                      />
+                    </TabPanel>
+                  </div>
                 ))}
               </TabContext>
             </Box>

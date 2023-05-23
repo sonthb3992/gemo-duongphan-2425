@@ -38,19 +38,20 @@ class Order extends Component {
     }
   }
 
-  updateOrderStatus = (orderId, status) => {
+  updateOrderStatus = async (orderId, status) => {
     const userId = this.state.user._id;
-    axios
-      .put(`${backendUrl}/users/${userId}/orders/${orderId}/status`, {
-        status,
-      })
-      .then((response) => {
-        console.log("Order status updated:", response.data.order);
-        this.props.getOrdersByUserId();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    try {
+      await axios.put(
+        `${backendUrl}/users/${userId}/orders/${orderId}/status`,
+        {
+          status,
+        }
+      );
+      console.log("Order status updated:", status);
+      this.props.getOrdersByUserId();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   render() {
@@ -119,7 +120,7 @@ class Order extends Component {
               </div>
 
               <div className="d-flex justify-content-between pt-2">
-                <p className="fw-bold mb-0">Order Details</p>
+                <p className="fw-bold mb-0"></p>
                 <p className="text-muted mb-0">
                   <span className="fw-bold me-4">Total</span> $
                   {order.cartPrice.totalCartPrice.toFixed(2)}
