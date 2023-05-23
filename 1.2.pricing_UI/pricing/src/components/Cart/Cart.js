@@ -5,6 +5,9 @@ import { Component } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { FormattedMessage } from "react-intl";
 import axios from "axios";
+import './Cart.css';
+import { HiOutlineTrash } from "react-icons/hi";
+import emptyCartImage from '../../images/empty_cart.png';
 
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
@@ -111,11 +114,11 @@ class Cart extends Component {
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${backendUrl}/users/${user._id}/orders`,
         updatedOrder
       );
-      const createdOrder = response.data;
+      // const createdOrder = response.data;
       // clear cart
       this.handleClearCart();
 
@@ -124,6 +127,28 @@ class Cart extends Component {
       console.error("Error creating order:", error);
     }
   };
+
+  formatDrinkTopping(item) {
+    let topping = "";
+    if (!item.hasWhippingCream && item.milkOption === "None") topping = "None";
+    else if (!item.hasWhippingCream && item.milkOption !== "None") topping = item.milkOption;
+    else if (item.hasWhippingCream && item.milkOption === "None") topping = "Whipping cream";
+    else topping = "Whipping cream, " + item.milkOption;
+
+    if (item.chocolateSaucePumps && item.chocolateSaucePumps > 0) topping += ", Chocolate Sauce (" + item.chocolateSaucePumps + ")";
+    return topping;
+  }
+
+  formatFoodTopping(item) {
+    if (!item.selectedCustomizations.length) return "None";
+    let topping = "";
+    for (let i = 0; i < item.selectedCustomizations.length; i++) {
+      if (i !== item.selectedCustomizations.length - 1) topping += item.selectedCustomizations[i] + ", "
+      else topping += item.selectedCustomizations[i]
+    }
+
+    return topping;
+  }
 
   render() {
     const { cart } = this.state;
@@ -141,64 +166,49 @@ class Cart extends Component {
           <Modal.Title id="contained-modal-title-vcenter">Cart</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length > 0 ? (
+          {items.length > 0 ? (
+            <table className="table">
+              <tbody>
                 <>
                   {items.map((item) => (
                     <tr key={item.id}>
-                      <td>
-                        {item.drink !== undefined ? (
-                          <p>
-                            Drink: {item.type} {item.drink}: size {item.size}
-                            {item.hasWhippingCream && ", has whipping cream"}
-                            {item.milkOption !== "none" &&
-                              `, ${item.milkOption}`}
-                            {item.chocolateSaucePumps > 0 &&
-                              `, ${item.chocolateSaucePumps} chocolate sauce`}
-                          </p>
-                        ) : (
-                          <p>
-                            Food: {item.food}
-                            {item.selectedCustomizations.length > 0 && ": "}
-                            {item.selectedCustomizations.map((food, index) => (
-                              <span key={index}>
-                                {`${food}${
-                                  index !==
-                                  item.selectedCustomizations.length - 1
-                                    ? ", "
-                                    : ""
-                                }`}
-                              </span>
-                            ))}
-                          </p>
-                        )}
+                      <td style={{ width: 150 }}>
+                        <img
+                          className="cart-image"
+                          src={item.image}
+                          alt={item.name}
+                        />
                       </td>
-                      <td>{1}</td>
-                      <td>${item.price.toFixed(2)}</td>
                       <td>
+                        {item.drink !== undefined ? (<p><b>Drink:</b> {item.drink}</p>) : (<p><b>Food:</b> {item.food}</p>)}
+                        {item.drink !== undefined ? (<p><b>Type:</b> {item.type}</p>) : <></>}
+                        {item.drink !== undefined ? (<p><b>Size:</b> {item.size}</p>) : <></>}
+                        {item.drink !== undefined ? (
+                          <p style={{ wordWrap: "break-word" }}>
+                            <b>Topping:</b> {this.formatDrinkTopping(item)}
+                          </p>) : (
+                          <p style={{ wordWrap: "break-word" }}>
+                            <b>Topping:</b> {this.formatFoodTopping(item)}
+                          </p>)}
+                      </td>
+                      <td style={{ verticalAlign: "middle", width: 100 }}><b>${item.price.toFixed(2)}</b></td>
+                      <td style={{ width: 150, verticalAlign: "middle" }}>
                         <button
                           className="btn btn-danger"
                           onClick={() => this.handleRemoveCartItem(item.id)}
+                          style={{ padding: 10, fontSize: 20 }}
                         >
-                          <FormattedMessage
+                          {/* <FormattedMessage
                             id="cart.remove"
                             defaultMessage="Remove"
-                          />
+                          /> */}
+                          <HiOutlineTrash />
                         </button>
                       </td>
                       <td></td>
                     </tr>
                   ))}
-                  <tr>
+                  {/* <tr>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -213,59 +223,38 @@ class Cart extends Component {
                         />
                       </button>
                     </td>
-                  </tr>
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                      <button
-                        onClick={this.handleAddToOrder}
-                        className="btn btn-success"
-                      >
-                        <FormattedMessage
-                          id="cart.addOrder"
-                          defaultMessage="Add To Order"
-                        />
-                      </button>
-                    </td>
-                  </tr>
+                  </tr> */}
                 </>
-              ) : (
-                <tr>
-                  <td>
-                    <FormattedMessage
-                      id="cart.empty"
-                      defaultMessage="No items in cart"
-                    />
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td>Total Price:</td>
-                <td></td>
-                {/* <td>${cart.cartPrice.totalCartPrice.toFixed(2)}</td> */}
-                <td></td>
-              </tr>
-              <tr>
-                <td>Tax:</td>
-                <td></td>
-                {/* <td>${cart.cartPrice.tax.toFixed(2)}</td> */}
-                <td></td>
-              </tr>
-              <tr>
-                <td>Total Price After Tax:</td>
-                <td></td>
-                {/* <td>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</td> */}
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
+
+              </tbody>
+            </table>
+          ) : (
+            <>
+              <div className="d-flex justify-content-center">
+                <img style={{ width: 500 }} src={emptyCartImage} alt="empty" />
+              </div>
+              <div className="d-flex justify-content-center" style={{fontSize: 25, fontWeight: 500, color: "#7290d4"}}>
+                <FormattedMessage
+                  id="cart.empty"
+                  defaultMessage="No items in cart"
+                />
+              </div>
+            </>
+          )}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={this.handleClose}>Close</Button>
+          <Button onClick={this.handleClose}>Cancel</Button>
+          {items.length ? (<button
+            onClick={this.handleAddToOrder}
+            className="btn btn-success"
+          >
+            <FormattedMessage
+              id="cart.addOrder"
+              defaultMessage="Add To Order"
+            />
+          </button>) : (<>
+          </>)}
+
         </Modal.Footer>
       </Modal>
     );

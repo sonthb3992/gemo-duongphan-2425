@@ -42,6 +42,7 @@ class DrinkOptionModal extends React.Component {
     price: 0,
     showError: false,
     errorText: "",
+    image: this.props.item.image,
   };
 
   componentDidMount() {
