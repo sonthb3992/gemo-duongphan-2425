@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
         type: String,
         required: false,
       },
-      additionalFoods: {
+      selectedCustomizations: {
         type: [String],
         required: false,
       },

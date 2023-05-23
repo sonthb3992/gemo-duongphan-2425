@@ -89,7 +89,6 @@ class OrderPage extends Component {
         `${backendUrl}/users/${user._id}/orders`
       );
       const orders = response.data;
-      console.log("hello duong", orders);
       orders.reverse();
       this.setState({ orders }, () => {
         this.filteredOrdersUpdate();

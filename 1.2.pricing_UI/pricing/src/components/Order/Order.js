@@ -7,6 +7,7 @@ import bagelImage from "../../images/bagel.png";
 import sandwichImage from "../../images/sandwich.png";
 import axios from "axios";
 import "./Order.css";
+import CustomAlert from "../CustomAlert/CustomAlert";
 
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
@@ -18,6 +19,7 @@ class Order extends Component {
     this.state = {
       order: this.props.order,
       user: JSON.parse(localStorage.getItem("user")),
+      alert: { show: false, message: "", type: "" },
     };
   }
 
@@ -48,20 +50,44 @@ class Order extends Component {
           status,
         }
       );
-      console.log("Order status updated:", status);
+      // show success alert
+      this.setState({
+        alert: {
+          show: true,
+          message: "Order status updated successfully",
+          type: "success",
+        },
+      });
       this.props.getOrdersByUserId();
     } catch (error) {
-      console.error(error);
+      // show error alert
+      this.setState({
+        alert: {
+          show: true,
+          message: `Error updating order status: ${error.message}`,
+          type: "danger",
+        },
+      });
     }
+  };
+
+  alertDismiss = () => {
+    this.setState({ alert: { show: false, message: "", type: "" } });
   };
 
   render() {
     const user = JSON.parse(localStorage.getItem("user"));
     const { order } = this.state;
     const { items } = order;
-    console.log("order", order);
     return (
       <div>
+        {this.state.alert.show && (
+          <CustomAlert
+            type={this.state.alert.type}
+            message={this.state.alert.message}
+            dismiss={this.alertDismiss}
+          />
+        )}
         <div key={order._id} className="col-lg-10 col-xl-12 p-6 mb-4">
           <div className="card">
             <div className="card-header bg-light">
@@ -192,7 +218,7 @@ class Order extends Component {
                 </div>
                 <h5 className="d-flex align-items-center justify-content-end text-uppercase mb-0">
                   Total paid:{"  "}
-                  <span className="h2 mb-0 ms-2">
+                  <span className="ml-2 h2 mb-0 ms-2">
                     ${order.cartPrice.totalCartPriceAfterTax.toFixed(2)}
                   </span>
                 </h5>

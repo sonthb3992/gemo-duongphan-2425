@@ -1,8 +1,7 @@
-// import React, { Component } from "react";
-
-import { Component } from "react";
+import React, { Component } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { IntlProvider, FormattedMessage } from "react-intl";
+import CustomAlert from "../CustomAlert/CustomAlert";
 import axios from "axios";
 
 const backendUrl =
@@ -23,6 +22,7 @@ class Cart extends Component {
       },
       locale: "en",
       isModalOpen: props.isModalOpen,
+      alert: { show: false, message: "", type: "" },
     };
 
     this.handleClose = props.handleClose;
@@ -33,20 +33,6 @@ class Cart extends Component {
     const user = JSON.parse(localStorage.getItem("user"));
     this.setState({ user });
   };
-  // addToCart = (item) => {
-  //   const { cart } = this.state;
-  //   const updatedItem = {
-  //     ...item,
-  //   };
-  //   const updatedItems = [...cart.items, updatedItem];
-  //   const updatedCart = {
-  //     ...cart,
-  //     items: updatedItems,
-  //   };
-  //   this.setState({ cart: updatedCart }, () => {
-  //     this.updateCartTotalPrice();
-  //   });
-  // };
 
   getCartItems = () => {
     var cartItems = JSON.parse(localStorage.getItem("cartItems"));
@@ -72,15 +58,12 @@ class Cart extends Component {
     });
   };
 
-  handleRemoveCartItem = (id) => {
+  handleRemoveCartItem = (index) => {
     const { cart } = this.state;
-    for (let i = 0; i < cart.items.length; ++i) {
-      if (cart.items[i].id === id) {
-        cart.items.splice(i, 1);
-      }
-    }
-    this.setCartItems(cart.items);
-    this.setState(cart, () => {
+    const updatedItems = [...cart.items];
+    updatedItems.splice(index, 1);
+    this.setCartItems(updatedItems);
+    this.setState({ cart: { ...cart, items: updatedItems } }, () => {
       this.updateCartTotalPrice();
     });
   };
@@ -105,21 +88,46 @@ class Cart extends Component {
         ...item,
       })),
     };
-    console.log(updatedOrder);
 
     try {
       const response = await axios.post(
         `${backendUrl}/users/${user._id}/orders`,
         updatedOrder
       );
-      const createdOrder = response.data;
       // clear cart
-      // this.handleClearCart();
+      this.handleClearCart();
 
-      this.getOrdersByUserId();
+      // show alert
+      this.setState({
+        alert: {
+          show: true,
+          message: "Order created successfully",
+          type: "success",
+        },
+      });
+
+      // this.getOrdersByUserId();
     } catch (error) {
+      // show error alert
+      this.setState({
+        alert: {
+          show: true,
+          message: "Error creating order: " + error.message,
+          type: "danger",
+        },
+      });
       console.error("Error creating order:", error);
     }
+  };
+
+  dismissAlert = () => {
+    this.setState({
+      alert: {
+        show: false,
+        message: "",
+        type: "",
+      },
+    });
   };
 
   render() {
@@ -128,15 +136,21 @@ class Cart extends Component {
 
     return (
       <IntlProvider>
+        {this.state.alert.show && (
+          <CustomAlert
+            type={this.state.alert.type}
+            message={this.state.alert.message}
+            dismiss={this.dismissAlert}
+          />
+        )}
         <Modal
           show={this.state.isModalOpen}
           onHide={this.handleClose}
           size="lg"
-          aria-labelledby="contained-modal-title-vcenter"
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">Cart</Modal.Title>
+            <Modal.Title>Cart</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <table className="table">
@@ -151,8 +165,8 @@ class Cart extends Component {
               <tbody>
                 {items.length > 0 ? (
                   <>
-                    {items.map((item) => (
-                      <tr key={item.id}>
+                    {items.map((item, index) => (
+                      <tr key={index}>
                         <td>
                           {item.drink !== undefined ? (
                             <p>
@@ -187,7 +201,7 @@ class Cart extends Component {
                         <td>
                           <button
                             className="btn btn-danger"
-                            onClick={() => this.handleRemoveCartItem(item.id)}
+                            onClick={() => this.handleRemoveCartItem(index)}
                           >
                             <FormattedMessage
                               id="cart.remove"
@@ -195,14 +209,12 @@ class Cart extends Component {
                             />
                           </button>
                         </td>
-                        <td></td>
                       </tr>
                     ))}
                     <tr>
                       <td></td>
                       <td></td>
-                      <td></td>
-                      <td>
+                      <td colSpan="4" className="m-2">
                         <button
                           onClick={this.handleClearCart}
                           className="btn btn-secondary"
@@ -212,16 +224,9 @@ class Cart extends Component {
                             defaultMessage="Clear Cart"
                           />
                         </button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td>
                         <button
                           onClick={this.handleAddToOrder}
-                          className="btn btn-success"
+                          className="btn btn-success m-2"
                         >
                           <FormattedMessage
                             id="cart.addOrder"
@@ -233,7 +238,7 @@ class Cart extends Component {
                   </>
                 ) : (
                   <tr>
-                    <td>
+                    <td colSpan="4">
                       <FormattedMessage
                         id="cart.empty"
                         defaultMessage="No items in cart"
@@ -246,19 +251,19 @@ class Cart extends Component {
                 <tr>
                   <td>Total Price:</td>
                   <td></td>
-                  {/* <td>${cart.cartPrice.totalCartPrice.toFixed(2)}</td> */}
+                  <td>${cart.cartPrice.totalCartPrice.toFixed(2)}</td>
                   <td></td>
                 </tr>
                 <tr>
                   <td>Tax:</td>
                   <td></td>
-                  {/* <td>${cart.cartPrice.tax.toFixed(2)}</td> */}
+                  <td>${cart.cartPrice.tax.toFixed(2)}</td>
                   <td></td>
                 </tr>
                 <tr>
                   <td>Total Price After Tax:</td>
                   <td></td>
-                  {/* <td>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</td> */}
+                  <td>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</td>
                   <td></td>
                 </tr>
               </tfoot>
