@@ -213,7 +213,7 @@ class Cart extends Component {
                     ))}
                     <tr>
                       <td></td>
-                      <td></td>
+                      {/* <td></td> */}
                       <td colSpan="4" className="m-2">
                         <button
                           onClick={this.handleClearCart}

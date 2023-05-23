@@ -8,6 +8,7 @@ import milkteaImage from "../../images/milktea.png";
 import bagelImage from "../../images/bagel.png";
 import sandwichImage from "../../images/sandwich.png";
 import CustomNavbar from "../../components/CustomNavbar/CustomNavbar.js";
+import { Navigate } from "react-router-dom";
 
 class MenuPage extends React.Component {
   constructor(props) {
@@ -67,7 +68,8 @@ class MenuPage extends React.Component {
   }
 
   render() {
-    const { currentTab, menuItems, user, locale } = this.state;
+    const { currentTab, menuItems, locale } = this.state;
+    const user = JSON.parse(localStorage.getItem("user"));
 
     const filteredItems =
       currentTab === "all"
@@ -76,6 +78,7 @@ class MenuPage extends React.Component {
 
     return (
       <IntlProvider locale={locale} messages={this.getLocaleMessages(locale)}>
+        {user === null ? <Navigate to="/login" /> : null}
         <CustomNavbar />
         <div>
           <div className="container-xl mx-auto px-6 py-8">

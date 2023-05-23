@@ -7,6 +7,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 import "./OrderPage.css";
 import CustomNavbar from "../../components/CustomNavbar/CustomNavbar";
+import { Navigate } from "react-router-dom";
 
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
@@ -133,9 +134,10 @@ class OrderPage extends Component {
 
   render() {
     const { tab, displayOrders, displayOrdersKey } = this.state;
-    console.log("displayOrders", displayOrders);
+    const user = JSON.parse(localStorage.getItem("user"));
     return (
       <div>
+        {user === null ? <Navigate to="/login" /> : null}
         <CustomNavbar className="mb-2" />
         <div className="container border rounded mt-2">
           <h2 className="text-2xl align-items-center font-bold mb-4 mt-4">
