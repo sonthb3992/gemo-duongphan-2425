@@ -1,213 +1,264 @@
 import React, { Component } from "react";
-import { FormattedMessage } from "react-intl";
+import { connect } from "react-redux";
+import { Button, Modal } from "react-bootstrap";
+import { FormattedMessage, injectIntl } from "react-intl";
+import axios from "axios";
+import "./Cart.css";
+import { HiOutlineTrash } from "react-icons/hi";
+import emptyCartImage from "../../images/empty_cart.png";
+import { removeFromCart, clearCart } from "../../redux/actions/cartActions";
+import { showAlert } from "../../redux/actions/alertActions";
+
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Cart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cart: {
-        items: [],
-        status: "",
-        id: "",
-        cartPrice: {
-          totalCartPrice: 0,
-          tax: 0,
-          totalCartPriceAfterTax: 0,
-        },
-      },
-      locale: "en",
+      isModalOpen: props.isModalOpen,
+      user: JSON.parse(localStorage.getItem("user")),
     };
   }
 
-  addToCart = (item) => {
-    const { cart } = this.state;
-    const updatedItem = {
-      ...item,
-    };
-    const updatedItems = [...cart.items, updatedItem];
-    const updatedCart = {
-      ...cart,
-      items: updatedItems,
-    };
-    this.setState({ cart: updatedCart }, () => {
-      this.updateCartTotalPrice();
-    });
+  handleClose = () => {
+    this.props.handleClose();
   };
 
-  updateCartTotalPrice = () => {
-    let { cart } = this.state;
-    let { items } = cart;
-    let totalCartPrice = 0;
-    for (let i = 0; i < items.length; ++i) {
-      totalCartPrice = totalCartPrice + items[i].price;
-    }
-    let tax = totalCartPrice * 0.0725;
-    let totalCartPriceAfterTax = totalCartPrice + tax;
-    cart.cartPrice = { totalCartPrice, tax, totalCartPriceAfterTax };
-    this.setState({
-      cart,
-    });
-  };
-
-  handleRemoveCartItem = (id) => {
-    const { cart } = this.state;
-    for (let i = 0; i < cart.items.length; ++i) {
-      if (cart.items[i].id === id) {
-        cart.items.splice(i, 1);
-      }
-    }
-    this.setState(cart, () => {
-      this.updateCartTotalPrice();
-    });
+  handleRemoveCartItem = (itemId) => {
+    this.props.removeFromCart(itemId);
   };
 
   handleClearCart = () => {
-    const { cart } = this.state;
-    cart.items = [];
-    cart.status = "";
-    this.setState({ cart }, () => {
-      this.updateCartTotalPrice();
-    });
+    this.props.clearCart();
   };
 
-  handleAddToOrder = () => {
-    const { cart } = this.state;
-    this.props.addToOrder(cart);
+  handleAddToOrder = async () => {
+    const { user } = this.state;
+    const { cart } = this.props;
+    const order = cart;
+    const updatedOrder = {
+      ...order,
+      status: "Pending",
+      items: order.items.map(({ id, ...item }) => item),
+    };
+
+    try {
+      await axios.post(`${backendUrl}/users/${user._id}/orders`, updatedOrder);
+      // const createdOrder = response.data;
+      // clear cart
+      this.handleClearCart();
+
+      // show alert
+      this.props.showAlert("success", "Order created successfully");
+    } catch (error) {
+      // show error alert
+      this.props.showAlert("danger", `Error creating order: ${error.message}`);
+    }
   };
+
+  formatDrinkTopping(item) {
+    let topping = "";
+    if (!item.hasWhippingCream && item.milkOption === "None") topping = "None";
+    else if (!item.hasWhippingCream && item.milkOption !== "None")
+      topping = item.milkOption;
+    else if (item.hasWhippingCream && item.milkOption === "None")
+      topping = "Whipping cream";
+    else topping = "Whipping cream, " + item.milkOption;
+
+    if (item.chocolateSaucePumps && item.chocolateSaucePumps > 0)
+      topping += ", Chocolate Sauce (" + item.chocolateSaucePumps + ")";
+    return topping;
+  }
+
+  formatFoodTopping(item) {
+    if (!item.selectedCustomizations.length) return "None";
+    let topping = "";
+    for (let i = 0; i < item.selectedCustomizations.length; i++) {
+      if (i !== item.selectedCustomizations.length - 1)
+        topping += item.selectedCustomizations[i] + ", ";
+      else topping += item.selectedCustomizations[i];
+    }
+
+    return topping;
+  }
 
   render() {
-    const { cart } = this.state;
+    const { cart } = this.props;
     const { items } = cart;
 
-    return (
-      <div className="container border rounded">
-        <h2 style={{ marginTop: "15px" }}>
-          <FormattedMessage id="cart.title" defaultMessage="Cart" />
-        </h2>
+    console.log("cart: ", cart);
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Product Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length > 0 ? (
-              <>
+    return (
+      <Modal
+        show={this.state.isModalOpen}
+        onHide={this.handleClose}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">Cart</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {items.length > 0 ? (
+            <table className="table">
+              <tbody>
                 {items.map((item) => (
                   <tr key={item.id}>
+                    <td style={{ width: 150 }}>
+                      <img
+                        className="cart-image"
+                        src={item.image}
+                        alt={item.name}
+                      />
+                    </td>
                     <td>
                       {item.drink !== undefined ? (
                         <p>
-                          Drink: {item.type} {item.drink}: size {item.size}
-                          {item.hasWhippingCream && ", has whipping cream"}
-                          {item.milkOption !== "none" && `, ${item.milkOption}`}
-                          {item.chocolateSaucePumps > 0 &&
-                            `, ${item.chocolateSaucePumps} chocolate sauce`}
+                          <b>Drink:</b> {item.drink}
                         </p>
                       ) : (
                         <p>
-                          Food: {item.food}
-                          {item.additionalFoods.length > 0 && ": "}
-                          {item.additionalFoods.map((food, index) => (
-                            <span key={index}>
-                              {`${food}${
-                                index !== item.additionalFoods.length - 1
-                                  ? ", "
-                                  : ""
-                              }`}
-                            </span>
-                          ))}
+                          <b>Food:</b> {item.food}
+                        </p>
+                      )}
+                      {item.drink !== undefined ? (
+                        <p>
+                          <b>Type:</b> {item.type}
+                        </p>
+                      ) : (
+                        <></>
+                      )}
+                      {item.drink !== undefined ? (
+                        <p>
+                          <b>Size:</b> {item.size}
+                        </p>
+                      ) : (
+                        <></>
+                      )}
+                      {item.drink !== undefined ? (
+                        <p style={{ wordWrap: "break-word" }}>
+                          <b>Topping:</b> {this.formatDrinkTopping(item)}
+                        </p>
+                      ) : (
+                        <p style={{ wordWrap: "break-word" }}>
+                          <b>Topping:</b> {this.formatFoodTopping(item)}
                         </p>
                       )}
                     </td>
-                    <td>{1}</td>
-                    <td>${item.price.toFixed(2)}</td>
-                    <td>
+                    <td style={{ verticalAlign: "middle", width: 100 }}>
+                      <b>${item.price.toFixed(2)}</b>
+                    </td>
+                    <td style={{ width: 150, verticalAlign: "middle" }}>
                       <button
                         className="btn btn-danger"
                         onClick={() => this.handleRemoveCartItem(item.id)}
+                        style={{ padding: 10, fontSize: 20 }}
                       >
-                        <FormattedMessage
-                          id="cart.remove"
-                          defaultMessage="Remove"
-                        />
+                        {/* <FormattedMessage
+                            id="cart.remove"
+                            defaultMessage="Remove"
+                          /> */}
+                        <HiOutlineTrash />
                       </button>
                     </td>
-                    <td></td>
                   </tr>
                 ))}
                 <tr>
                   <td></td>
-                  <td></td>
-                  <td></td>
                   <td>
-                    <button
-                      onClick={this.handleClearCart}
-                      className="btn btn-secondary"
-                    >
-                      <FormattedMessage
-                        id="cart.clear"
-                        defaultMessage="Clear Cart"
-                      />
-                    </button>
+                    <b>Price:</b>
                   </td>
+                  <td>
+                    <b>${cart.cartPrice.totalCartPrice.toFixed(2)}</b>
+                  </td>
+                  <td></td>
                 </tr>
                 <tr>
                   <td></td>
+                  <td>
+                    <b>Tax:</b>
+                  </td>
+                  <td>
+                    <b>${cart.cartPrice.tax.toFixed(2)}</b>
+                  </td>
                   <td></td>
+                </tr>
+                <tr>
                   <td></td>
                   <td>
-                    <button
-                      onClick={this.handleAddToOrder}
-                      className="btn btn-success"
-                    >
-                      <FormattedMessage
-                        id="cart.addOrder"
-                        defaultMessage="Add To Order"
-                      />
-                    </button>
+                    <b>Total Price:</b>
                   </td>
+                  <td>
+                    <b>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</b>
+                  </td>
+                  <td></td>
                 </tr>
-              </>
-            ) : (
-              <tr>
-                <td>
+              </tbody>
+            </table>
+          ) : (
+            <>
+              <div className="d-flex justify-content-center">
+                <img style={{ width: 500 }} src={emptyCartImage} alt="empty" />
+              </div>
+              <div
+                className="d-flex justify-content-center"
+                style={{ fontSize: 25, fontWeight: 500, color: "#7290d4" }}
+              >
+                <FormattedMessage
+                  id="cart.empty"
+                  defaultMessage="No items in cart"
+                />
+              </div>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={this.handleClose}>Cancel</Button>
+
+          {items.length ? (
+            <>
+              <>
+                <button
+                  onClick={this.handleClearCart}
+                  className="btn btn-secondary"
+                >
                   <FormattedMessage
-                    id="cart.empty"
-                    defaultMessage="No items in cart"
+                    id="cart.clear"
+                    defaultMessage="Clear Cart"
                   />
-                </td>
-              </tr>
-            )}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>Total Price:</td>
-              <td></td>
-              <td>${cart.cartPrice.totalCartPrice.toFixed(2)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Tax:</td>
-              <td></td>
-              <td>${cart.cartPrice.tax.toFixed(2)}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>Total Price After Tax:</td>
-              <td></td>
-              <td>${cart.cartPrice.totalCartPriceAfterTax.toFixed(2)}</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+                </button>
+              </>
+              <>
+                <button
+                  onClick={this.handleAddToOrder}
+                  className="btn btn-success"
+                >
+                  <FormattedMessage
+                    id="cart.addOrder"
+                    defaultMessage="Add To Order"
+                  />
+                </button>
+              </>
+            </>
+          ) : (
+            <></>
+          )}
+        </Modal.Footer>
+      </Modal>
     );
   }
 }
 
-export default Cart;
+const mapStateToProps = (state) => ({
+  cart: state.cart,
+});
+
+const mapDispatchToProps = {
+  removeFromCart,
+  clearCart,
+  showAlert,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Cart));

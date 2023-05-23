@@ -4,7 +4,8 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+const backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Login extends React.Component {
   constructor(props) {
@@ -124,7 +125,7 @@ class Login extends React.Component {
                     <button type="submit" className="btn btn-primary">
                       Login
                     </button>
-                    <Link to="/register" className="btn btn-primary ml-2 mt-2">
+                    <Link to="/register" className="btn btn-primary ml-2">
                       Register
                     </Link>
                   </div>

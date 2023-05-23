@@ -1,18 +1,32 @@
+import React from "react";
+import { Provider } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
-import Menu from "./pages/Menu/Menu";
+import MenuPage from "./pages/MenuPage/MenuPage";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
+import OrderPage from "./pages/OrderPage/OrderPage";
+import store from "./redux/store";
+import CustomAlert from "../src/components/CustomAlert/CustomAlert";
+import { IntlProvider } from "react-intl";
 
-
-function App() {
+const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Menu />} />
-      <Route path="login" element={<Login />} />
-      <Route path="register" element={<Register />} />
-    </Routes>
+    <Provider store={store}>
+      <div>
+        <CustomAlert />
+        <IntlProvider locale="en">
+          <Routes>
+            <Route path="/" element={<MenuPage />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="menu" element={<MenuPage />} />
+            <Route path="orders" element={<OrderPage />} />
+          </Routes>
+        </IntlProvider>
+      </div>
+    </Provider>
   );
-}
+};
 
 export default App;

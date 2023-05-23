@@ -3,7 +3,8 @@ import { Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+let backendUrl =
+  process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
 class Register extends React.Component {
   constructor(props) {
@@ -44,7 +45,6 @@ class Register extends React.Component {
       });
       return;
     }
-
     try {
       // Make the registration request
       const response = await axios.post(`${backendUrl}/register`, {
@@ -147,7 +147,7 @@ class Register extends React.Component {
                     <button type="submit" className="btn btn-primary">
                       Register
                     </button>
-                    <Link to="/login" className="btn btn-secondary ml-2 mt-2">
+                    <Link to="/login" className="btn btn-secondary ml-2">
                       Login
                     </Link>
                   </div>
