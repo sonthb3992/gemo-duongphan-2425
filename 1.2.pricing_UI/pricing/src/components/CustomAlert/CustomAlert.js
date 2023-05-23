@@ -1,44 +1,39 @@
-import React, { Component } from "react";
-import "./CustomAlert.css";
+import React, { useEffect } from "react";
+import { connect } from "react-redux";
 import { Alert as BootstrapAlert } from "react-bootstrap";
+import { dismissAlert } from "../../redux/actions/alertActions";
+import "./CustomAlert.css";
 
-class CustomAlert extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showAlert: true,
-    };
-  }
+const CustomAlert = ({ alert, dismissAlert }) => {
+  useEffect(() => {
+    if (alert.show) {
+      setTimeout(() => {
+        dismissAlert();
+      }, 2000); // Automatically dismiss after 3 seconds
+    }
+  }, [alert.show, dismissAlert]);
 
-  componentDidMount() {
-    this.dismissAlert();
-  }
+  const { type, message } = alert;
 
-  dismissAlert = () => {
-    setTimeout(() => {
-      this.setState({ showAlert: false });
-      this.props.dismiss();
-    }, 3000);
+  const alertClassName = `alert ${type === "success" ? "success" : "error"}`;
+
+  return alert.show ? (
+    <div className={alertClassName}>
+      <BootstrapAlert
+        variant={type === "success" ? "success" : "danger"}
+        dismissible
+        onClose={dismissAlert}
+      >
+        {message}
+      </BootstrapAlert>
+    </div>
+  ) : null;
+};
+
+const mapStateToProps = (state) => {
+  return {
+    alert: state.alert,
   };
+};
 
-  render() {
-    const { type, message } = this.props;
-    const { showAlert } = this.state;
-
-    const alertClassName = `alert ${type === "success" ? "success" : "error"}`;
-
-    return showAlert ? (
-      <div className={alertClassName}>
-        <BootstrapAlert
-          variant={type === "success" ? "success" : "danger"}
-          dismissible
-          onClose={() => this.setState({ showAlert: false })}
-        >
-          {message}
-        </BootstrapAlert>
-      </div>
-    ) : null;
-  }
-}
-
-export default CustomAlert;
+export default connect(mapStateToProps, { dismissAlert })(CustomAlert);

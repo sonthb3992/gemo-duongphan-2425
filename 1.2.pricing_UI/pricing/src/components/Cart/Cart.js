@@ -1,9 +1,12 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
-import { IntlProvider, FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 import CustomAlert from "../CustomAlert/CustomAlert";
-import axios from "axios";
+import { removeFromCart, clearCart } from "../../redux/actions/cartActions";
+import { showAlert } from "../../redux/actions/alertActions";
 
+import axios from "axios";
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
 
@@ -11,82 +14,27 @@ class Cart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      cart: {
-        items: this.getCartItems(),
-        status: "",
-        cartPrice: {
-          totalCartPrice: 0,
-          tax: 0,
-          totalCartPriceAfterTax: 0,
-        },
-      },
-      locale: "en",
       isModalOpen: props.isModalOpen,
-      alert: { show: false, message: "", type: "" },
+      user: JSON.parse(localStorage.getItem("user")),
     };
-
-    this.handleClose = props.handleClose;
-    this.updateCartTotalPrice();
   }
 
-  componentDidMount = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    this.setState({ user });
-  };
-
-  getCartItems = () => {
-    var cartItems = JSON.parse(localStorage.getItem("cartItems"));
-    return cartItems ? cartItems : [];
-  };
-
-  setCartItems = (items) => {
-    localStorage.setItem("cartItems", JSON.stringify(items));
-  };
-
-  updateCartTotalPrice = () => {
-    let { cart } = this.state;
-    let { items } = cart;
-    let totalCartPrice = 0;
-    for (let i = 0; i < items.length; ++i) {
-      totalCartPrice = totalCartPrice + items[i].price;
-    }
-    let tax = totalCartPrice * 0.0725;
-    let totalCartPriceAfterTax = totalCartPrice + tax;
-    cart.cartPrice = { totalCartPrice, tax, totalCartPriceAfterTax };
-    this.setState({
-      cart,
-    });
-  };
-
-  handleRemoveCartItem = (index) => {
-    const { cart } = this.state;
-    const updatedItems = [...cart.items];
-    updatedItems.splice(index, 1);
-    this.setCartItems(updatedItems);
-    this.setState({ cart: { ...cart, items: updatedItems } }, () => {
-      this.updateCartTotalPrice();
-    });
+  handleRemoveCartItem = (itemId) => {
+    this.props.removeFromCart(itemId);
   };
 
   handleClearCart = () => {
-    const { cart } = this.state;
-    cart.items = [];
-    cart.status = "";
-    this.setCartItems(cart.items);
-    this.setState({ cart }, () => {
-      this.updateCartTotalPrice();
-    });
+    this.props.clearCart();
   };
 
   handleAddToOrder = async () => {
-    const { cart, user } = this.state;
+    const { user } = this.state;
+    const { cart } = this.props;
     const order = cart;
     const updatedOrder = {
       ...order,
       status: "Pending",
-      items: order.items.map((item) => ({
-        ...item,
-      })),
+      items: order.items.map(({ id, ...item }) => item),
     };
 
     try {
@@ -98,54 +46,26 @@ class Cart extends Component {
       this.handleClearCart();
 
       // show alert
-      this.setState({
-        alert: {
-          show: true,
-          message: "Order created successfully",
-          type: "success",
-        },
-      });
+      this.props.showAlert("success", "Order created successfully");
 
       // this.getOrdersByUserId();
     } catch (error) {
       // show error alert
-      this.setState({
-        alert: {
-          show: true,
-          message: "Error creating order: " + error.message,
-          type: "danger",
-        },
-      });
-      console.error("Error creating order:", error);
+      this.props.showAlert("danger", `Error creating order: ${error.message}`);
     }
   };
 
-  dismissAlert = () => {
-    this.setState({
-      alert: {
-        show: false,
-        message: "",
-        type: "",
-      },
-    });
-  };
-
   render() {
-    const { cart } = this.state;
+    const { cart } = this.props;
     const { items } = cart;
 
+    console.log("cart: ", cart);
+
     return (
-      <IntlProvider>
-        {this.state.alert.show && (
-          <CustomAlert
-            type={this.state.alert.type}
-            message={this.state.alert.message}
-            dismiss={this.dismissAlert}
-          />
-        )}
+      <>
         <Modal
           show={this.state.isModalOpen}
-          onHide={this.handleClose}
+          onHide={this.props.handleClose}
           size="lg"
           centered
         >
@@ -201,7 +121,7 @@ class Cart extends Component {
                         <td>
                           <button
                             className="btn btn-danger"
-                            onClick={() => this.handleRemoveCartItem(index)}
+                            onClick={() => this.handleRemoveCartItem(item.id)}
                           >
                             <FormattedMessage
                               id="cart.remove"
@@ -213,7 +133,6 @@ class Cart extends Component {
                     ))}
                     <tr>
                       <td></td>
-                      {/* <td></td> */}
                       <td colSpan="4" className="m-2">
                         <button
                           onClick={this.handleClearCart}
@@ -270,12 +189,22 @@ class Cart extends Component {
             </table>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={this.handleClose}>Close</Button>
+            <Button onClick={this.props.handleClose}>Close</Button>
           </Modal.Footer>
         </Modal>
-      </IntlProvider>
+      </>
     );
   }
 }
 
-export default Cart;
+const mapStateToProps = (state) => ({
+  cart: state.cart,
+});
+
+const mapDispatchToProps = {
+  removeFromCart,
+  clearCart,
+  showAlert,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(Cart));

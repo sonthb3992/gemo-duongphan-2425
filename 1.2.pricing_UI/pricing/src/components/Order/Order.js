@@ -7,7 +7,8 @@ import bagelImage from "../../images/bagel.png";
 import sandwichImage from "../../images/sandwich.png";
 import axios from "axios";
 import "./Order.css";
-import CustomAlert from "../CustomAlert/CustomAlert";
+import { showAlert } from "../../redux/actions/alertActions";
+import { connect } from "react-redux"; // Import connect from react-redux
 
 const backendUrl =
   process.env.REACT_APP_BACKEND_URL || "http://localhost:8000/api";
@@ -19,11 +20,8 @@ class Order extends Component {
     this.state = {
       order: this.props.order,
       user: JSON.parse(localStorage.getItem("user")),
-      alert: { show: false, message: "", type: "" },
     };
   }
-
-  componentDidMount = () => {};
 
   renderItemImage(item) {
     if (item.drink) {
@@ -42,7 +40,7 @@ class Order extends Component {
   }
 
   updateOrderStatus = async (orderId, status) => {
-    const userId = this.state.user._id;
+    const userId = JSON.parse(localStorage.getItem("user"))._id;
     try {
       await axios.put(
         `${backendUrl}/users/${userId}/orders/${orderId}/status`,
@@ -50,24 +48,15 @@ class Order extends Component {
           status,
         }
       );
-      // show success alert
-      this.setState({
-        alert: {
-          show: true,
-          message: "Order status updated successfully",
-          type: "success",
-        },
-      });
+      // Show success alert
+      this.props.showAlert("success", "Order status updated successfully");
       this.props.getOrdersByUserId();
     } catch (error) {
-      // show error alert
-      this.setState({
-        alert: {
-          show: true,
-          message: `Error updating order status: ${error.message}`,
-          type: "danger",
-        },
-      });
+      // Show error alert
+      this.props.showAlert(
+        "danger",
+        `Error updating order status: ${error.message}`
+      );
     }
   };
 
@@ -81,13 +70,6 @@ class Order extends Component {
     const { items } = order;
     return (
       <div>
-        {this.state.alert.show && (
-          <CustomAlert
-            type={this.state.alert.type}
-            message={this.state.alert.message}
-            dismiss={this.alertDismiss}
-          />
-        )}
         <div key={order._id} className="col-lg-10 col-xl-12 p-6 mb-4">
           <div className="card">
             <div className="card-header bg-light">
@@ -231,4 +213,4 @@ class Order extends Component {
   }
 }
 
-export default Order;
+export default connect(null, { showAlert })(Order);

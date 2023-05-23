@@ -1,15 +1,16 @@
 import React from "react";
+import { connect } from "react-redux";
+import { addToCart } from "../../redux/actions/cartActions";
 import DrinkOptionModal from "../DrinkOptionModal/DrinkOptionModal";
 import FoodOptionModal from "../FoodOptionModal/FoodOptionModal";
 import { tw } from "twind";
-import CustomAlert from "../CustomAlert/CustomAlert";
+import { showAlert } from "../../redux/actions/alertActions";
 
 class Item extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       showModal: false,
-      alert: { show: false, message: "", type: "" },
     };
   }
 
@@ -25,25 +26,11 @@ class Item extends React.Component {
     this.setState({ showModal: false });
     const { showError, errorText, ...filteredItem } = item;
 
-    // show success alert
-    this.setState({
-      alert: {
-        show: true,
-        message: "Item added to cart!",
-        type: "success",
-      },
-    });
+    // Dispatch action to show success alert
+    this.props.showAlert("success", "Item added to cart!");
 
-    // TODO:
-    var cartItems = JSON.parse(localStorage.getItem("cartItems"));
-    const newCartItems = cartItems ? [...cartItems, item] : [item];
-    localStorage.setItem("cartItems", JSON.stringify(newCartItems));
-    // this.props.onAddToCart(filteredItem);
-  };
-
-  // dismiss alert
-  dismissAlert = () => {
-    this.setState({ alert: { show: false, message: "", type: "" } });
+    // Add item to cartItems in Redux
+    this.props.addToCart(filteredItem);
   };
 
   render() {
@@ -52,13 +39,6 @@ class Item extends React.Component {
 
     return (
       <>
-        {this.state.alert.show && (
-          <CustomAlert
-            type={this.state.alert.type}
-            message={this.state.alert.message}
-            dismiss={this.dismissAlert}
-          />
-        )}
         <div
           className={tw`max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden m-2`}
         >
@@ -109,4 +89,4 @@ class Item extends React.Component {
   }
 }
 
-export default Item;
+export default connect(null, { addToCart, showAlert })(Item);
