@@ -1,5 +1,7 @@
 # Coffee Shop Repo
 
+You can try our application at: https://restaurant.duongphan.com/
+
 This repository contains two sub-repositories for a coffee shop project.
 
 ## Pricing Frontend (1.2.pricing_UI/pricing)
