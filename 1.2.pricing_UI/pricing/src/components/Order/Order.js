@@ -18,10 +18,26 @@ class Order extends Component {
     super(props);
 
     this.state = {
-      order: this.props.order,
-      user: JSON.parse(localStorage.getItem("user")),
+      user: null,
+      order: this.props.order
     };
+    this.intervalId = null;
   }
+
+  componentDidMount() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    this.setState({ user });
+
+    const { order } = this.state;
+    this.intervalId = setInterval(async () => {
+      await this.getNewOrderStatus(order._id);
+    }, 10000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.intervalId);
+  }
+
 
   renderItemImage(item) {
     if (item.drink) {
@@ -61,7 +77,23 @@ class Order extends Component {
   };
 
   getNewOrderStatus = async (orderId) => {
-    
+    try {
+      const response = await axios.get(`${backendUrl}/orders/${orderId}`);
+      const updatedOrder = response.data;
+      if (updatedOrder) {
+        this.setState((prevState) => ({
+          order: {
+            ...prevState.order,
+            ...updatedOrder
+          }
+        }));
+        if (updatedOrder.state === "completed" && this.intervalId) {
+          clearInterval(this.intervalId);
+        }
+      }
+    } catch (error) {
+      this.props.showAlert("danger", `Error updating order status: ${error.message}`);
+    }
   }
 
 
@@ -72,7 +104,6 @@ class Order extends Component {
   render() {
     const user = JSON.parse(localStorage.getItem("user"));
     const { order } = this.state;
-    console.log(order);
     const { items } = order;
     return (
       <div>
@@ -158,7 +189,7 @@ class Order extends Component {
             <div className="card-footer bg-primary text-white">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                 {user.role === "staff" ? (
+                  {user.role === "staff" ? (
                     <>
                       {order.status === "Pending" && (
                         <button
