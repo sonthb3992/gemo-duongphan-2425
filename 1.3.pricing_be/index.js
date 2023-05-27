@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 // Database connection string
-const dbConnectionString = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
+const dbConnectionString = "mongodb+srv://sonthb:fYTL0jlwSjvLI5rh@duongpham.hyplvwo.mongodb.net/?retryWrites=true&w=majority";
 // Connect to MongoDB
 mongoose
   .connect(dbConnectionString, {
@@ -145,6 +145,38 @@ async function getOrdersByUserId(userId, userRole) {
     throw error;
   }
 }
+
+
+// GET /orders/:userId
+
+async function getOrderById(orderId) {
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    return order;
+  } catch (error) {
+    console.error("Error retrieving orders:", error);
+    throw error;
+  }
+}
+
+app.get("/api/orders/:orderId", async (req, res) => {
+  const {orderId} = req.params;
+  console.log(orderId);
+  try {
+    const id = new mongoose.Types.ObjectId(orderId.trim());
+
+    const order = await getOrderById(id);
+    res.json(order);
+
+  } catch (error) {
+    console.error(`Error retrieving order:${orderId}`, error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+})
+
 
 app.get("/api/users/:userId/orders", async (req, res) => {
   const { userId } = req.params;

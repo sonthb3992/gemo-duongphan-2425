@@ -60,6 +60,11 @@ class Order extends Component {
     }
   };
 
+  getNewOrderStatus = async (orderId) => {
+    
+  }
+
+
   alertDismiss = () => {
     this.setState({ alert: { show: false, message: "", type: "" } });
   };
@@ -153,7 +158,7 @@ class Order extends Component {
             <div className="card-footer bg-primary text-white">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  {user.role === "staff" ? (
+                 {user.role === "staff" ? (
                     <>
                       {order.status === "Pending" && (
                         <button

@@ -81,7 +81,7 @@ class OrderPage extends Component {
         displayOrders,
         displayOrdersKey: displayOrdersKey + 1, // Update the displayOrdersKey
       },
-      () => {}
+      () => { }
     );
   };
 
@@ -101,6 +101,12 @@ class OrderPage extends Component {
     }
   };
 
+  intervalDuration = 30000;
+
+  fetchOrdersPeriodically = async () => {
+    await this.getOrdersByUserId(); 
+  };
+
   renderPagination = () => {
     const { currentPage, pageNumbers } = this.state;
 
@@ -110,9 +116,8 @@ class OrderPage extends Component {
           {Array.from({ length: pageNumbers }).map((_, index) => (
             <li
               key={index}
-              className={`page-item ${
-                currentPage === index + 1 ? "active" : ""
-              }`}
+              className={`page-item ${currentPage === index + 1 ? "active" : ""
+                }`}
             >
               <button
                 className="page-link"
@@ -133,6 +138,10 @@ class OrderPage extends Component {
       this.updateDisplayOrders();
     });
   };
+
+
+
+
 
   render() {
     const { tab, displayOrders, displayOrdersKey } = this.state;
